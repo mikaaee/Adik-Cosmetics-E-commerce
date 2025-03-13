@@ -1,0 +1,135 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100vh;
+}
+
+.left,
+.right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.left {
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    background-color: #c69c9c;
+    height: 100%;
+    padding-right: 0px;
+}
+
+.left h1 {
+    color: #fff;
+}
+
+.left h3 {
+    font-size: 24px;
+    color: white;
+    margin: 10px 0;
+    padding: 10px;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.left h3:hover {
+    color: #c69c9c;
+    background-color: white;
+    padding: 10px 40px;
+    border-radius: 20px;
+    transform: scale(1.1);
+}
+
+.right {
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.login-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f5e6e6;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 300px;
+}
+
+.login-box p {
+    color: #c69c9c;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.input-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px 0;
+    border: 1px solid #c69c9c;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.input-box i {
+    font-size: 18px;
+    color: #c69c9c;
+    margin-right: 10px;
+}
+
+.input-box input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 16px;
+}
+
+
+.login-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #c69c9c;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.login-btn:hover {
+    background-color: #a17777;
+}
+
+.login-link {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #000;
+}
+
+.login-link a {
+    color: #c69c9c;
+    font-weight: bold;
+}
+
+.login-link a:hover {
+    color: #a17777;
+}
