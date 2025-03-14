@@ -7,6 +7,8 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700&display=swap" rel="stylesheet">
+
 
     <!-- External CSS -->
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
@@ -15,19 +17,6 @@
 
     {{-- Dynamic Header --}}
     @yield('header')
-
-    {{-- Nav Role-Based --}}
-    <nav>
-        <ul>
-            @if(session('user_data.role') === 'admin')
-                <li><a href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
-                <li><a href="{{ route('logout') }}">Logout</a></li>
-            @elseif(session('user_data.role') === 'user')
-                <li><a href="{{ route('home') }}">Home</a></li>
-                <li><a href="{{ route('logout') }}">Logout</a></li>
-            @endif
-        </ul>
-    </nav>
 
     <main>
         {{-- Shared Hero Section --}}

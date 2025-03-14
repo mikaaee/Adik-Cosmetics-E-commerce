@@ -2,7 +2,7 @@
 body, html {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Gabarito', sans-serif;
     height: 100%;
 }
 
@@ -24,6 +24,8 @@ a {
     display: flex;
     flex-direction: column;
     transition: width 0.3s;
+    font-family: 'Gabarito', sans-serif;
+    min-height: 100vh; /* Pastikan sidebar penuh */
 }
 
 .sidebar.minimized {
@@ -43,17 +45,20 @@ a {
     cursor: pointer;
     margin-right: 20px;
     color: #fff;
+    transition: color 0.3s;
 }
 
-/* Optional hover */
 .sidebar-toggle:hover {
     color: #ddd;
 }
+
 .sidebar .logo {
     font-weight: bold;
     font-size: 20px;
+    letter-spacing: 1px;
 }
 
+/* Sidebar Menu */
 .sidebar ul {
     list-style: none;
     padding: 0;
@@ -63,14 +68,42 @@ a {
 .sidebar ul li {
     padding: 15px 20px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s;
+    position: relative;
 }
 
+.sidebar ul li i {
+    margin-right: 15px;
+    font-size: 18px;
+    transition: transform 0.3s, color 0.3s;
+}
+
+/* Hover effect */
 .sidebar ul li:hover {
     background-color: #333;
+    color: #fff;
 }
 
+.sidebar ul li:hover i {
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* Minimized Sidebar Hide Text */
 .sidebar.minimized ul li span {
     display: none;
+}
+
+/* Active Menu (Optional - Letak class 'active' pada li) */
+.sidebar ul li.active {
+    background-color: #444;
+    color: #fff;
+}
+
+.sidebar ul li.active i {
+    color: #fff;
 }
 
 /* Header */
@@ -125,14 +158,12 @@ a {
     display: flex;
     align-items: center;
     cursor: pointer;
+    font-size: 32px;
+    margin-right: 10px;
+    color: #fff;
 }
-
-.header .user-profile img {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 8px;
+.user-profile:hover i {
+    color: #ddd;
 }
 
 .header .user-profile span {
@@ -170,6 +201,36 @@ a {
 .header .profile-dropdown.show {
     display: block;
 }
+/* Button Icon Styles */
+.icon-btn {
+    position: relative;
+    background: none;
+    border: none;
+    color: #fff; /* White color for black theme */
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.icon-btn:hover {
+    color: #ddd;
+    transform: scale(1.1);
+}
+
+/* Badge Styles */
+.icon-btn .badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
 
 
 /* Main Content */
@@ -188,4 +249,102 @@ a {
 /* Responsive Text */
 .sidebar.minimized .sidebar-header span {
     display: none;
+}
+.user-profile-container {
+    position: relative;
+    display: inline-block;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.user-profile img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-profile i {
+    font-size: 14px;
+}
+
+/* Dropdown Menu */
+.profile-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #111;
+    border: 1px solid #333;
+    border-radius: 5px;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.profile-dropdown a {
+    color: #fff;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.profile-dropdown a:hover {
+    background-color: #333;
+}
+
+.profile-dropdown a i {
+    width: 20px;
+    text-align: center;
+}
+.edit-profile-container {
+    max-width: 500px;
+    margin: 50px auto;
+    background-color: #111;
+    padding: 20px;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.edit-profile-container h2 {
+    margin-bottom: 20px;
+}
+
+.edit-profile-container .form-group {
+    margin-bottom: 15px;
+}
+
+.edit-profile-container label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.edit-profile-container input {
+    width: 100%;
+    padding: 10px;
+    background: #222;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 5px;
+}
+
+.edit-profile-container button {
+    background-color: #fff;
+    color: #000;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-profile-container button:hover {
+    background-color: #ddd;
 }

@@ -3,7 +3,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Gabarito', sans-serif;
 }
 
 body {
@@ -68,7 +68,7 @@ header nav ul li a span {
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: #fff; /* Text color white for contrast */
+    color: #000; /* Text color white for contrast */
     padding: 0 20px;
     position: relative;
 }
@@ -91,14 +91,14 @@ header nav ul li a span {
 }
 
 .hero h1 {
-    font-size: 58px;
+    font-size: 75px;
     margin-bottom: 15px;
-    font-weight: bold;
 }
 
 .hero p {
-    font-size: 15px;
+    font-size: 22px;
     margin-bottom: 20px;
+    color: #fff;
 }
 
 .btn-shop {

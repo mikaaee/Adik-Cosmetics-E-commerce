@@ -81,6 +81,12 @@ Route::get('/admin/add-product', function () {
     return 'Add Products Page';
 })->name('admin.add-product');
 
+// Admin Edit Profile Page
+Route::get('/admin/edit-profile', [AdminController::class, 'editProfile'])->name('admin.edit-profile');
+
+// Untuk handle update form kalau ada
+Route::post('/admin/update-profile', [AdminController::class, 'updateProfile'])->name('admin.update-profile');
+
 // Logout Route (existing in your controller)
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
