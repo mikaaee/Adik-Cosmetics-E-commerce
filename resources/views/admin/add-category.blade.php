@@ -1,27 +1,10 @@
-@extends('layouts.admin') <!-- kalau kau ada layout, guna ni -->
+@extends('layouts.admin')
 
 @section('content')
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 
     <div class="add-product-container"> <!-- Class boleh reuse sebab styling sama -->
         <h2>Add New Category</h2>
-
-        <!-- ✅ SUCCESS MESSAGE -->
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <!-- ❌ ERROR VALIDATION MESSAGES -->
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
         <!-- Form Add Category -->
         <form action="{{ route('admin.store-category') }}" method="POST" enctype="multipart/form-data">
@@ -33,13 +16,13 @@
                 <input type="text" name="category_name" id="category_name" required placeholder="Enter category name">
             </div>
 
-            <!-- Description -->
+            <!-- Description 
             <div class="form-group">
                 <label for="category_description">Description</label>
                 <textarea name="category_description" id="category_description" rows="4" placeholder="Optional description"></textarea>
             </div>
 
-            <!-- Category Image 
+             Category Image 
             <div class="form-group">
                 <label for="category_image">Category Image</label>
                 <input type="file" name="category_image" id="category_image" accept="image/*">
@@ -50,4 +33,28 @@
         </form>
     </div>
 
+    <!-- SweetAlert2 Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        </script>
+    @endif
+
+    @if ($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops! Something went wrong.',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+            });
+        </script>
+    @endif
 @endsection

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700&display=swap" rel="stylesheet">
-    
+
 </head>
 
 <body>
@@ -72,7 +72,6 @@
                     </div>
                     <!-- Dropdown Menu -->
                     <div id="profileDropdown" class="profile-dropdown">
-                        <a href="{{ route('admin.edit-profile') }}"><i class="fas fa-user-edit"></i> Edit Profile</a>
                         <a href="{{ route('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
 
@@ -83,12 +82,14 @@
                 @yield('content')
             </div>
         </div>
+        <!-- Include any global JS here -->
+
+        @yield('scripts') <!-- ✅ Tempat letak script custom per page -->
 
     </div>
 
     <!-- Script for Sidebar -->
     <script>
-        
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('minimized');
         }

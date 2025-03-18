@@ -5,13 +5,6 @@
         <div class="container">
             <h1 class="mb-4">All Categories</h1>
 
-            @if (session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-            @if (session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
-
             <table class="table custom-table"> <!-- Removed table-striped -->
                 <thead>
                     <tr>
@@ -55,4 +48,28 @@
             </table>
         </div>
     </div>
+     <!-- SweetAlert2 Script -->
+     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+     @if (session('success'))
+         <script>
+             Swal.fire({
+                 icon: 'success',
+                 title: 'Success!',
+                 text: '{{ session('success') }}',
+                 showConfirmButton: false,
+                 timer: 3000
+             });
+         </script>
+     @endif
+ 
+     @if ($errors->any())
+         <script>
+             Swal.fire({
+                 icon: 'error',
+                 title: 'Oops! Something went wrong.',
+                 html: `{!! implode('<br>', $errors->all()) !!}`,
+             });
+         </script>
+     @endif
 @endsection
