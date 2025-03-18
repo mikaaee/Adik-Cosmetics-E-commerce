@@ -5,6 +5,8 @@ use Kreait\Firebase\Contract\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use Kreait\Firebase\Auth as FirebaseAuth;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,22 +66,74 @@ Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
 
-// Other routes examples
-Route::get('/admin/categories', function () {
-    return 'All Categories Page';
-})->name('admin.categories');
 
-Route::get('/admin/products', function () {
-    return 'All Products Page';
-})->name('admin.products');
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/admin/add-category', function () {
-    return 'Add Categories Page';
-})->name('admin.add-category');
+// 🔒 Semua route dalam "admin" prefix
+Route::prefix('admin')->group(function () {
 
-Route::get('/admin/add-product', function () {
-    return 'Add Products Page';
-})->name('admin.add-product');
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard (Optional)
+    |--------------------------------------------------------------------------
+    */
+    // Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Category Management Routes
+    |--------------------------------------------------------------------------
+    */
+
+    // ➕ Add Category
+    Route::get('/add-category', [CategoryController::class, 'addCategory'])->name('admin.add-category');
+    Route::post('/store-category', [CategoryController::class, 'storeCategory'])->name('admin.store-category');
+
+    // 📋 All Categories Page
+    Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories');
+
+    // ✏️ Edit & Update Category
+    Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('admin.categories.edit');
+    Route::put('/categories/{id}/update', [CategoryController::class, 'update'])->name('admin.categories.update');
+
+    // 🗑️ Delete Category
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product Management Routes
+    |--------------------------------------------------------------------------
+    */
+
+    // ➕ Add Product
+    Route::get('/add-product', [ProductController::class, 'create'])->name('admin.add-product');
+    Route::post('/store-product', [ProductController::class, 'storeProduct'])->name('admin.store-product');
+
+    // 📋 All Products Page
+    Route::get('/products', [ProductController::class, 'index'])->name('admin.products');
+
+    // ✏️ Edit & Update Product
+    Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
+    Route::put('/products/{id}/update', [ProductController::class, 'update'])->name('admin.products.update');
+
+    // 🗑️ Delete Product
+    Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
+});
+
+
+// Store product ke Firestore
+Route::post('/admin/products', [ProductController::class, 'store'])->name('admin.store-product');
+// User Home
+Route::get('/home', [ProductController::class, 'userHome'])->name('user.home');
+
+// Guest Page
+Route::get('/', [ProductController::class, 'guestHome'])->name('guest.home');
+
+
 
 // Admin Edit Profile Page
 Route::get('/admin/edit-profile', [AdminController::class, 'editProfile'])->name('admin.edit-profile');

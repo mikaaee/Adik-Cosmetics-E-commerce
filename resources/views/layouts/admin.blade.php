@@ -7,14 +7,12 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700&display=swap" rel="stylesheet">
-
-
+    
 </head>
 
 <body>
 
     <div class="container">
-
 
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
@@ -30,6 +28,7 @@
                     <i class="fas fa-folder"></i>
                     <span>All Categories</span>
                 </li>
+
                 <li onclick="location.href='{{ route('admin.products') }}'">
                     <i class="fas fa-box"></i>
                     <span>All Products</span>
@@ -80,17 +79,16 @@
                 </div>
             </div>
 
-            <!-- Content -->
             <div class="content">
                 @yield('content')
             </div>
-
         </div>
 
     </div>
 
     <!-- Script for Sidebar -->
     <script>
+        
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('minimized');
         }

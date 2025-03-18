@@ -1,5 +1,6 @@
 /* General */
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     font-family: 'Gabarito', sans-serif;
@@ -22,14 +23,21 @@ a {
     background-color: #000;
     color: #fff;
     display: flex;
+    position: fixed;
     flex-direction: column;
     transition: width 0.3s;
     font-family: 'Gabarito', sans-serif;
-    min-height: 100vh; /* Pastikan sidebar penuh */
+    min-height: 100vh;
+    /* Pastikan sidebar penuh */
 }
 
 .sidebar.minimized {
     width: 80px;
+}
+
+.sidebar.minimized+.main {
+    margin-left: 80px;
+    /* Bila sidebar minimize */
 }
 
 .sidebar-header {
@@ -106,6 +114,11 @@ a {
     color: #fff;
 }
 
+/* Responsive Text */
+.sidebar.minimized .sidebar-header span {
+    display: none;
+}
+
 /* Header */
 .header {
     height: 60px;
@@ -121,6 +134,7 @@ a {
 .header .user-info {
     font-size: 14px;
 }
+
 /* Tambah di bawah .user-info kalau belum ada */
 .header .user-actions {
     display: flex;
@@ -162,6 +176,7 @@ a {
     margin-right: 10px;
     color: #fff;
 }
+
 .user-profile:hover i {
     color: #ddd;
 }
@@ -170,6 +185,7 @@ a {
     font-size: 14px;
     color: #fff;
 }
+
 /* Dropdown container */
 .header .profile-dropdown {
     display: none;
@@ -201,12 +217,14 @@ a {
 .header .profile-dropdown.show {
     display: block;
 }
+
 /* Button Icon Styles */
 .icon-btn {
     position: relative;
     background: none;
     border: none;
-    color: #fff; /* White color for black theme */
+    color: #fff;
+    /* White color for black theme */
     font-size: 20px;
     cursor: pointer;
     padding: 10px;
@@ -238,6 +256,7 @@ a {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    margin-left: 250px;
 }
 
 .content {
@@ -246,10 +265,7 @@ a {
     padding: 20px;
 }
 
-/* Responsive Text */
-.sidebar.minimized .sidebar-header span {
-    display: none;
-}
+
 .user-profile-container {
     position: relative;
     display: inline-block;
@@ -283,7 +299,7 @@ a {
     border: 1px solid #333;
     border-radius: 5px;
     min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1;
 }
 
@@ -305,6 +321,7 @@ a {
     width: 20px;
     text-align: center;
 }
+
 .edit-profile-container {
     max-width: 500px;
     margin: 50px auto;
@@ -347,4 +364,450 @@ a {
 
 .edit-profile-container button:hover {
     background-color: #ddd;
+}
+
+.add-product-container {
+    background: #fff;
+    padding: 40px 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+.add-product-container label {
+    display: block;
+    margin-bottom: 8px;
+    /* Jarak label dengan input */
+    font-weight: 60;
+}
+
+.add-product-container input[type="text"],
+.add-product-container textarea,
+.add-product-container select {
+    width: 100%;
+    padding: 12px 15px;
+    /* Tambah padding dalam field */
+    margin-bottom: 20px;
+    /* Jarak bawah setiap field */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.add-product-container input[type="file"] {
+    margin-bottom: 20px;
+    /* Jarak bawah */
+}
+
+.add-product-container button {
+    background-color: #000;
+    color: #fff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-product-container button:hover {
+    background-color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.btn-submit {
+    background-color: #000;
+    color: #fff;
+    padding: 12px 24px;
+    /* tambah sikit saiz padding bagi nampak balance */
+    border: none;
+    cursor: pointer;
+    border-radius: 20px !important;
+    font-size: 16px;
+    /* optional: kasi teks nampak lebih jelas */
+    transition: all 0.3s ease;
+    /* smooth transition untuk hover */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* shadow lembut */
+}
+
+.btn-submit:hover {
+    background: linear-gradient(90deg, #333, #000);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    /* lebih kuat masa hover */
+    transform: translateY(-3px);
+    /* bagi efek macam floating bila hover */
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+    /* reset balik bila click */
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.2);
+}
+
+.alert {
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.category-page .container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.category-page h1 {
+    text-align: center;
+}
+
+.category-page .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.category-page .custom-table th,
+.category-page .custom-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.category-page .custom-table thead {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.category-page .custom-table tbody tr {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+.category-page .custom-table tbody tr:nth-child(even) {
+    background-color: #e9ecef;
+    /* custom striped effect, optional */
+}
+
+/* Flex container untuk spacing antara button */
+.action-buttons {
+    display: flex;
+    gap: 30px;
+    /* jarak antara buttons */
+}
+
+/* Base styles untuk kedua-dua icon buttons */
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    /* Pastikan lebar sama */
+    height: 40px;
+    /* Pastikan tinggi sama */
+    border-radius: 8px;
+    /* Rounded edges */
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    /* Icon size sama */
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Edit button styles */
+.edit-btn {
+    background-color: #fff;
+    color: #212529;
+}
+
+.edit-btn:hover {
+    background-color: #000;
+    color: #fff;
+}
+
+/* Delete button styles */
+.delete-btn {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Optional: Remove padding on form button */
+.delete-btn {
+    padding: 0;
+    /* Remove default button padding */
+}
+
+/* edit category, reuse yang add-product container(below css for button) */
+
+.btn-cancel {
+    background-color: #fff;
+    color: #6c757d;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 20px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background-color: #fff;
+}
+
+.btn-submit i,
+.btn-cancel i {
+    margin-right: 8px;
+}
+
+/*all products design*/
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.admin-table thead {
+    background-color: #f3f4f6;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.admin-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.admin-table img.table-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.no-product {
+    color: #6b7280;
+    font-style: italic;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background-color: #facc15;
+    color: #000;
+}
+
+.btn-edit:hover {
+    background-color: #eab308;
+}
+
+.btn-delete {
+    background-color: #ef4444;
+    color: #fff;
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+}
+
+/* Product Page Container */
+.product-page .container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+}
+
+/* Title Style */
+.product-page h1.page-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+/* Table Design */
+.product-page .custom-table {
+    width: 100%;
+    max-width: 1200px;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.product-page .custom-table th,
+.product-page .custom-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.product-page .custom-table thead {
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+.product-page .custom-table tbody tr {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+.product-page .custom-table tbody tr:nth-child(even) {
+    background-color: #e9ecef;
+}
+
+.product-page .custom-table tbody tr:hover {
+    background-color: #e2e6ea;
+}
+
+/* Product Image */
+.table-product-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Buttons Styling */
+.btn-edit {
+    background-color: #ffc107;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+/* Alerts */
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* No Product Text */
+.no-product {
+    text-align: center;
+    margin-top: 20px;
+    color: #6c757d;
 }
