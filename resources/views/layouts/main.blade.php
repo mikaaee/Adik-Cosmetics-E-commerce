@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ms">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,17 +14,25 @@
     <!-- External CSS -->
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
 </head>
+
 <body>
 
     {{-- Dynamic Header --}}
-    @yield('header')
+    @if (View::hasSection('header'))
+        @yield('header')
+    @else
+        @include('partials.header-home')
+    @endif
+
 
     <main>
-        {{-- Shared Hero Section --}}
-        @include('partials.hero')
+        @if (Request::is('/') || Request::is('home'))
+            {{-- Shared Hero Section --}}
+            @include('partials.hero')
+            {{-- Shared Featured Products --}}
+            @include('partials.feature-products')
+        @endif
 
-        {{-- Shared Featured Products --}}
-        @include('partials.feature-products')
 
         {{-- Page Content --}}
         @yield('content')
@@ -34,4 +43,5 @@
     </footer>
 
 </body>
+
 </html>

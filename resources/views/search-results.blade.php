@@ -1,5 +1,8 @@
+@extends('layouts.main') {{-- Kalau kamu guna layout, sesuaikan ikut layout kamu --}}
+@section('content')
+
 <section class="products">
-    <h2>Our Featured Products</h2>
+    <h2>Hasil Carian: "{{ request('query') }}"</h2>
 
     <div class="product-grid">
         @forelse($products as $product)
@@ -12,7 +15,9 @@
                 </button>
             </div>
         @empty
-            <p>No products available.</p>
+            <p>Tiada produk dijumpai untuk carian tersebut.</p>
         @endforelse
     </div>
 </section>
+
+@endsection

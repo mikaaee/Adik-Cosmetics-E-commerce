@@ -28,16 +28,16 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string',
-            'email'    => 'required|email',
-            'phone'    => 'required|string',
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'required|string',
             'password' => 'required|string|min:6',
         ]);
 
         try {
             // 1. Create user kat Firebase Auth
             $userProperties = [
-                'email'    => $request->email,
+                'email' => $request->email,
                 'password' => $request->password,
             ];
 
@@ -56,10 +56,10 @@ class AuthController extends Controller
             $response = $client->post($url, [
                 'json' => [
                     'fields' => [
-                        'name'  => ['stringValue' => $request->name],
+                        'name' => ['stringValue' => $request->name],
                         'email' => ['stringValue' => $request->email],
                         'phone' => ['stringValue' => $request->phone],
-                        'role'  => ['stringValue' => $role],
+                        'role' => ['stringValue' => $role],
                     ]
                 ],
                 'headers' => [
@@ -72,14 +72,15 @@ class AuthController extends Controller
             }
 
             // 4. Save session
-            session([
-                'user_data' => [
-                    'uid'   => $uid,
-                    'name'  => $request->name,
-                    'email' => $request->email,
-                    'role'  => $role,
-                ]
+            // 4. Save session to Firestore
+            $this->storeSessionInFirestore([
+                'uid' => $uid,
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'role' => $role,
             ]);
+
 
             // 5. Redirect ikut role
             return $this->redirectUser($role);
@@ -99,7 +100,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
 
@@ -109,12 +110,12 @@ class AuthController extends Controller
 
             // 2. Get user details by email
             $user = $this->auth->getUserByEmail($request->email);
-            $uid  = $user->uid;
+            $uid = $user->uid;
 
             // 3. Retrieve data from Firestore
-            $client    = new Client();
+            $client = new Client();
             $projectId = 'adikcosmetics-1518b';
-            $url       = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$uid";
+            $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$uid";
 
             $response = $client->get($url, [
                 'headers' => [
@@ -127,19 +128,20 @@ class AuthController extends Controller
             }
 
             $userData = json_decode($response->getBody(), true);
-            $fields   = $userData['fields'] ?? [];
+            $fields = $userData['fields'] ?? [];
 
             $role = $fields['role']['stringValue'] ?? 'user';
 
             // 4. Simpan session
-            session([
-                'user_data' => [
-                    'uid'   => $uid,
-                    'name'  => $fields['name']['stringValue'] ?? '',
-                    'email' => $fields['email']['stringValue'] ?? '',
-                    'role'  => $role,
-                ]
+            // 4. Simpan session ke Firestore
+            $this->storeSessionInFirestore([
+                'uid' => $uid,
+                'name' => $fields['name']['stringValue'] ?? '',
+                'email' => $fields['email']['stringValue'] ?? '',
+                'phone' => $fields['phone']['stringValue'] ?? '',
+                'role' => $role,
             ]);
+
 
             // 5. Redirect ikut role
             return $this->redirectUser($role);
@@ -171,6 +173,34 @@ class AuthController extends Controller
             return back()->with('error', 'Failed to send reset link: ' . $e->getMessage());
         }
     }
+    private function storeSessionInFirestore($userData)
+    {
+        $projectId = 'adikcosmetics-1518b';
+        $uid = $userData['uid'];
+        $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/sessions/$uid";
+    
+        $sessionData = [
+            'fields' => [
+                'name' => ['stringValue' => $userData['name']],
+                'email' => ['stringValue' => $userData['email']],
+                'phone' => ['stringValue' => $userData['phone']],
+                'last_activity' => ['timestampValue' =>now()->setTimezone('Asia/Kuala_Lumpur')->toISOString()
+            ],
+            ]
+        ];
+    
+        $response = \Illuminate\Support\Facades\Http::withToken($this->getAccessToken())
+                    ->patch($url, $sessionData); // use PATCH instead of POST
+    
+        if ($response->failed()) {
+            // optional: log error or handle fallback
+            \Log::error('Failed to update session in Firestore', ['response' => $response->body()]);
+        }
+    
+        // Simpan juga dalam session Laravel
+        session(['user_data' => $userData]);
+    }
+    
 
     // ======== LOGOUT FUNCTION ========
     public function logout()
@@ -185,27 +215,27 @@ class AuthController extends Controller
         $credentials = json_decode(file_get_contents(base_path('storage/app/firebase/credentials.json')), true);
 
         $clientEmail = $credentials['client_email'];
-        $privateKey  = $credentials['private_key'];
+        $privateKey = $credentials['private_key'];
 
-        $now     = time();
+        $now = time();
         $expires = $now + 3600;
 
         $payload = [
-            'iss'   => $clientEmail,
-            'sub'   => $clientEmail,
-            'aud'   => 'https://oauth2.googleapis.com/token',
-            'iat'   => $now,
-            'exp'   => $expires,
+            'iss' => $clientEmail,
+            'sub' => $clientEmail,
+            'aud' => 'https://oauth2.googleapis.com/token',
+            'iat' => $now,
+            'exp' => $expires,
             'scope' => 'https://www.googleapis.com/auth/datastore'
         ];
 
         $jwt = JWT::encode($payload, $privateKey, 'RS256');
 
-        $client   = new Client();
+        $client = new Client();
         $response = $client->post('https://oauth2.googleapis.com/token', [
             'form_params' => [
                 'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-                'assertion'  => $jwt,
+                'assertion' => $jwt,
             ]
         ]);
 

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
+use App\Models\Product;
+
 
 class ProductController extends Controller
 {
@@ -193,32 +195,32 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'category' => 'required|string|max:255',
         ]);
-    
+
         $projectId = 'adikcosmetics-1518b';
         $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-    
+
         // Fetch current product untuk dapatkan existing image URL
         $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products/{$id}";
-    
+
         $response = Http::withToken($accessToken)->get($url);
-    
+
         if (!$response->successful()) {
             return redirect()->back()->with('error', 'Product not found.');
         }
-    
+
         $currentProduct = $response->json();
         $currentImageUrl = $currentProduct['fields']['image_url']['stringValue'] ?? '';
-    
+
         // Handle image upload kalau ada gambar baru
         $imageUrl = $currentImageUrl;
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('images/products'), $imageName);
-    
+
             $imageUrl = asset('images/products/' . $imageName);
         }
-    
+
         // Prepare data untuk update (Firestore pakai PATCH)
         $data = [
             'fields' => [
@@ -230,31 +232,31 @@ class ProductController extends Controller
                 'updated_at' => ['timestampValue' => now()->toIso8601String()],
             ]
         ];
-    
+
         $updateUrl = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products/{$id}?updateMask.fieldPaths=name&updateMask.fieldPaths=description&updateMask.fieldPaths=price&updateMask.fieldPaths=category&updateMask.fieldPaths=image_url&updateMask.fieldPaths=updated_at";
-    
+
         $updateResponse = Http::withToken($accessToken)->patch($updateUrl, $data);
-    
+
         if ($updateResponse->successful()) {
             return redirect()->route('admin.products')->with('success', 'Product updated successfully!');
         } else {
             return redirect()->back()->with('error', 'Failed to update product.');
         }
     }
-    
+
 
     public function destroy($id)
     {
         try {
             $projectId = 'adikcosmetics-1518b';
             $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-    
+
             // URL untuk delete specific product
             $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products/{$id}";
-    
+
             // DELETE request ke Firestore
             $response = Http::withToken($accessToken)->delete($url);
-    
+
             if ($response->successful()) {
                 return redirect()->route('admin.products')->with('success', 'Product deleted successfully!');
             } else {
@@ -264,8 +266,82 @@ class ProductController extends Controller
             return redirect()->route('admin.products')->with('error', 'Error deleting product: ' . $e->getMessage());
         }
     }
+    public function featuredProducts()
+    {
+        // Firestore project info
+        $projectId = 'adikcosmetics-1518b';
+        $apiKey = 'AIzaSyD2Y2szwDstqTmVRHJSvVBXb25Ci3KtX6Y';  // Gantikan dengan API key yang betul
+
+        // Endpoint untuk dapatkan produk
+        $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/products";
+
+        // Query untuk cari produk dengan is_featured = true
+        $response = Http::get($url, [
+            'where' => [
+                'field' => [
+                    'fieldPath' => 'is_featured',
+                    'value' => [
+                        'booleanValue' => true,
+                    ],
+                ],
+            ],
+        ]);
+        // Debug respons API Firestore
+        dd($response->json());  // Debug respons API Firestore
+
+
+
+
+        // Parse response untuk ambil data produk
+        $products = $response->json()['documents'] ?? [];
+
+        // Mapkan response ke dalam format yang sesuai untuk view
+        $products = array_map(function ($product) {
+            return [
+                'id' => $product['name'],
+                'name' => $product['fields']['name']['stringValue'] ?? '',
+                'price' => $product['fields']['price']['doubleValue'] ?? 0,
+                'image_url' => $product['fields']['image_url']['stringValue'] ?? '',
+            ];
+        }, $products);
+        // Debugkan data produk
+        dd($products);
+
+        return view('partials.feature-products', compact('products'));
+    }
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
     
-
-
+        // Endpoint Firestore untuk dapatkan semua dokumen dari koleksi 'products'
+        $url = 'https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/products';
+    
+        $response = Http::get($url);
+    
+        $filteredProducts = [];
+    
+        if ($response->successful()) {
+            $documents = $response->json()['documents'] ?? [];
+    
+            foreach ($documents as $doc) {
+                $fields = $doc['fields'];
+    
+                $product = [
+                    'name' => $fields['name']['stringValue'] ?? '',
+                    'price' => $fields['price']['doubleValue'] ?? 0,
+                    'image_url' => $fields['image_url']['stringValue'] ?? ''
+                ];
+    
+                // Cari produk ikut nama (case-insensitive)
+                if (stripos($product['name'], $query) !== false) {
+                    $filteredProducts[] = $product;
+                }
+            }
+        }
+    
+        // Return view untuk paparkan hasil carian
+        return view('search-results', ['products' => $filteredProducts]);
+    }
+    
 }
 

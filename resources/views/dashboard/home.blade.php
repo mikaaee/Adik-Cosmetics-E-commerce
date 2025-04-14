@@ -8,4 +8,5 @@
 
 @section('content')
     {{-- Additional content khusus untuk home user (optional) --}}
+
 @endsection
