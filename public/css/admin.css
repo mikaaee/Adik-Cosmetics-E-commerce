@@ -477,11 +477,54 @@ a {
     color: #721c24;
 }
 
+/* Styles untuk Add Category button */
+.add-btn {
+    position: absolute;
+    top: 13%;
+    right: 20px;
+    /* Jarak dari sebelah kanan */
+    /*transform: translateY(-10%); Pusatkan secara vertikal */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color: #3b3b3b;
+    /* Hijau untuk butang success */
+    color: white;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Icon dalam butang */
+.add-btn i {
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+/* Hover effect */
+.add-btn:hover {
+    background-color: #2d2f2e;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Active effect */
+.add-btn:active {
+    background-color: #070807;
+    transform: translateY(1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
 .category-page .container {
     display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
+    margin-top: 30px;
 }
 
 .category-page h1 {
@@ -490,10 +533,12 @@ a {
 
 .category-page .custom-table {
     width: 100%;
+    max-width: 1200px;
     border-collapse: collapse;
-    background: #fff;
+    background: #ffffff;
     border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .category-page .custom-table th,
@@ -594,6 +639,47 @@ a {
 .btn-submit i,
 .btn-cancel i {
     margin-right: 8px;
+}
+
+/* Search field part */
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.search-input {
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    width: 250px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+    border-color: #888;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Button Styling */
+.btn.btn-primary {
+    background-color: #000;
+    border: none;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn.btn-primary:hover {
+    background-color: #505151;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 /*all products design*/

@@ -21,9 +21,19 @@
                     <li><a href="{{ route('user.profile') }}"><i class="fa-solid fa-id-card"></i> Profile</a></li>
                     <li><a href="{{ route('user.orderHistory') }}"><i class="fa-solid fa-box-archive"></i> Order History</a></li>
                     <li><a href="{{ route('user.address') }}"><i class="fa-solid fa-map-marker-alt"></i> Address</a></li>
+                    <li><a href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket"></i>Logout</a></li>
                 </ul>
             </li>
-            <li><a href="{{ route('logout') }}">Logout</a></li>
+            <li class="dropdown">
+                <a href="#">Products <i class="fa-solid fa-caret-down"></i></a>
+                <ul class="dropdown-content">
+                    @foreach($categories as $category)
+                        <li><a href="{{ route('category.show', $category['name']) }}">{{ $category['fields']['name']['stringValue'] }}</a></li>
+                    @endforeach
+                </ul>
+                
+            </li>
+                        
         </ul>
     </nav>
 </header>

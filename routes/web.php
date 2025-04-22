@@ -8,6 +8,8 @@ use App\Http\Controllers\UserController;
 use Kreait\Firebase\Auth as FirebaseAuth;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\ProfileController;
 
 /*
@@ -67,41 +69,64 @@ Route::get('/address', [UserController::class, 'address'])->name('user.address')
 
 
 
-/*
-|--------------------------------------------------------------------------
-| Admin Dashboard
-|--------------------------------------------------------------------------
-*/
-Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
-/*
-|--------------------------------------------------------------------------
-| Admin Routes (Category & Product Management)
-|--------------------------------------------------------------------------
-*/
+
+// Admin Routes Group
 Route::prefix('admin')->group(function () {
 
-    // Category Routes
-    Route::get('/add-category', [CategoryController::class, 'addCategory'])->name('admin.add-category');
-    Route::post('/store-category', [CategoryController::class, 'storeCategory'])->name('admin.store-category');
+    /*
+|-------------------------------------------------------------------------- 
+| Admin Dashboard
+|-------------------------------------------------------------------------- 
+*/
+    Route::get('/dashboard', [OrderController::class, 'dashboard'])->name('admin.dashboard');
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Category Routes
+    |-------------------------------------------------------------------------- 
+    */
     Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories');
+    Route::get('/categories/create', [CategoryController::class, 'create'])->name('admin.categories.create'); // Tukar kepada create
+    Route::post('/categories/store', [CategoryController::class, 'store'])->name('admin.categories.store'); // Tukar kepada store
     Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('admin.categories.edit');
     Route::put('/categories/{id}/update', [CategoryController::class, 'update'])->name('admin.categories.update');
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
 
-    // Product Routes
-    Route::get('/add-product', [ProductController::class, 'create'])->name('admin.add-product');
-    Route::post('/store-product', [ProductController::class, 'store'])->name('admin.store-product');
+    /*
+    |-------------------------------------------------------------------------- 
+    | Product Routes
+    |-------------------------------------------------------------------------- 
+    */
     Route::get('/products', [ProductController::class, 'index'])->name('admin.products');
+    Route::get('/create', [ProductController::class, 'create'])->name('admin.products.create');
+    Route::post('/store-product', [ProductController::class, 'storeProduct'])->name('admin.store-product');
     Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
     Route::put('/products/{id}/update', [ProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
-    Route::get('/search', [ProductController::class, 'search'])->name('search');
 
+    /*
+    |-------------------------------------------------------------------------- 
+    | Order Routes
+    |-------------------------------------------------------------------------- 
+    */
+    Route::get('/manage-orders', [OrderController::class, 'index'])->name('admin.orders.index');
+    Route::put('/manage-orders/{id}', [OrderController::class, 'update'])->name('admin.orders.update');
+
+
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Reports Route
+    |-------------------------------------------------------------------------- 
+    */
+    Route::get('/generate-report', [ReportController::class, 'generateReport'])->name('admin.reports.index');
 
 });
-// Route untuk featured products
-Route::get('/featured-products', [ProductController::class, 'featuredProducts'])->name('products.featured');
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | Profile Routes

@@ -36,7 +36,7 @@ class ProductController extends Controller
             }
         }
 
-        return view('admin.add-product', compact('categories'));
+        return view('admin.create-product', compact('categories'));
     }
 
     // Store product GUNA REST API
@@ -89,26 +89,44 @@ class ProductController extends Controller
     }
 
     // List all products (untuk All Product page & Sidebar)
-    public function index()
+    public function index(Request $request)
     {
-        $projectId = 'adikcosmetics-1518b'; // project ID kau
+        $projectId = 'adikcosmetics-1518b';
         $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-
-        // Endpoint REST API Firestore (collection: products)
-        $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products";
-
-        // GET data dari Firestore
-        $response = \Illuminate\Support\Facades\Http::withToken($accessToken)->get($url);
-
-        $products = [];
-
-        if ($response->successful()) {
-            $documents = $response->json()['documents'] ?? [];
-
+    
+        // Get categories
+        $urlCategories = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/categories";
+        $responseCategories = Http::withToken($accessToken)->get($urlCategories);
+    
+        $categories = [];
+    
+        if ($responseCategories->successful()) {
+            $documents = $responseCategories->json()['documents'] ?? [];
+    
             foreach ($documents as $doc) {
                 $fields = $doc['fields'];
-
-                $products[] = [
+    
+                $categories[] = [
+                    'id' => basename($doc['name']),
+                    'category_name' => $fields['category_name']['stringValue'] ?? '',
+                ];
+            }
+        }
+    
+        $search = $request->input('search');
+        $filterCategory = $request->input('category');
+        $products = [];
+    
+        $urlProducts = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products";
+        $responseProducts = Http::withToken($accessToken)->get($urlProducts);
+    
+        if ($responseProducts->successful()) {
+            $documents = $responseProducts->json()['documents'] ?? [];
+    
+            foreach ($documents as $doc) {
+                $fields = $doc['fields'];
+    
+                $product = [
                     'id' => basename($doc['name']),
                     'name' => $fields['name']['stringValue'] ?? '',
                     'description' => $fields['description']['stringValue'] ?? '',
@@ -116,12 +134,20 @@ class ProductController extends Controller
                     'category' => $fields['category']['stringValue'] ?? '',
                     'image_url' => $fields['image_url']['stringValue'] ?? '',
                 ];
+    
+                // Apply filter
+                $matchSearch = !$search || stripos($product['name'], $search) !== false;
+                $matchCategory = !$filterCategory || $product['category'] == $filterCategory;
+    
+                if ($matchSearch && $matchCategory) {
+                    $products[] = $product;
+                }
             }
         }
-
-        // Hantar ke blade file
-        return view('admin.all-products', compact('products'));
+    
+        return view('admin.manage-products', compact('products', 'categories'));
     }
+    
     public function edit($id)
     {
         $projectId = 'adikcosmetics-1518b';
@@ -312,36 +338,50 @@ class ProductController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('query');
-    
+
         // Endpoint Firestore untuk dapatkan semua dokumen dari koleksi 'products'
         $url = 'https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/products';
-    
+
         $response = Http::get($url);
-    
+
         $filteredProducts = [];
-    
+
         if ($response->successful()) {
             $documents = $response->json()['documents'] ?? [];
-    
+
             foreach ($documents as $doc) {
                 $fields = $doc['fields'];
-    
+
                 $product = [
                     'name' => $fields['name']['stringValue'] ?? '',
                     'price' => $fields['price']['doubleValue'] ?? 0,
                     'image_url' => $fields['image_url']['stringValue'] ?? ''
                 ];
-    
+
                 // Cari produk ikut nama (case-insensitive)
                 if (stripos($product['name'], $query) !== false) {
                     $filteredProducts[] = $product;
                 }
             }
         }
-    
+
         // Return view untuk paparkan hasil carian
         return view('search-results', ['products' => $filteredProducts]);
     }
-    
+    public function showByCategory($category)
+    {
+        // Ambil produk berdasarkan kategori
+        $response = Http::get('https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/products', [
+            'filter' => [
+                'field' => 'category',
+                'op' => '==',
+                'value' => $category,
+            ]
+        ]);
+
+        $products = json_decode($response->body(), true)['documents'] ?? [];
+
+        return view('products.index', compact('products'));
+    }
 }
 

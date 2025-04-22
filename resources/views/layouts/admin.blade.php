@@ -9,6 +9,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700&display=swap" rel="stylesheet">
 
 </head>
+<style>
+    #sidebar {
+        transition: all 0.3s ease;
+        /* Smooth transition for all properties */
+        width: 250px;
+        /* Default width when the sidebar is expanded */
+        /* Add any other styling for the sidebar */
+    }
+
+    #sidebar.minimized {
+        width: 80px;
+        /* Width when the sidebar is minimized */
+    }
+</style>
 
 <body>
 
@@ -24,28 +38,33 @@
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </li>
+
                 <li onclick="location.href='{{ route('admin.categories') }}'">
-                    <i class="fas fa-folder"></i>
-                    <span>All Categories</span>
+                    <i class="fas fa-folder-open"></i>
+                    <span>Manage Categories</span>
                 </li>
 
                 <li onclick="location.href='{{ route('admin.products') }}'">
-                    <i class="fas fa-box"></i>
-                    <span>All Products</span>
+                    <i class="fas fa-boxes"></i>
+                    <span>Manage Products</span>
                 </li>
-                <li onclick="location.href='{{ route('admin.add-category') }}'">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add Categories</span>
+
+                <li onclick="location.href='{{ route('admin.orders.index') }}'">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Manage Orders</span>
                 </li>
-                <li onclick="location.href='{{ route('admin.add-product') }}'">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add Products</span>
+
+                <li onclick="location.href='{{ route('admin.reports.index') }}'">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Report</span>
                 </li>
+
                 <li onclick="location.href='{{ route('logout') }}'">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </li>
             </ul>
+
         </div>
 
         <!-- Main Section -->
@@ -71,7 +90,7 @@
                         <i class="fas fa-caret-down"></i>
                     </div>
                     <!-- Dropdown Menu -->
-                    <div id="profileDropdown" class="profile-dropdown">
+                    <div id="profileDropdown" class="profile-dropdown" style="display: none;">
                         <a href="{{ route('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
 
@@ -105,15 +124,13 @@
 
         // Optional: Hide dropdown kalau klik luar dari profile
         document.addEventListener('click', function(event) {
-            const profile = document.querySelector('.user-profile-container');
+            const profile = document.querySelector('.user-profile');
             const dropdown = document.getElementById('profileDropdown');
             if (!profile.contains(event.target)) {
                 dropdown.style.display = 'none';
             }
         });
     </script>
-
-
 
 </body>
 

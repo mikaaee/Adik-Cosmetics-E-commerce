@@ -9,19 +9,18 @@ use Illuminate\Support\Facades\Http;
 
 class CategoryController extends Controller
 {
-    public function addCategory()
+    public function create()
     {
-        return view('admin.add-category');
+        return view('admin.create-category');  // Gantikan 'admin.add-category' dengan 'admin.create-category'
     }
-    public function storeCategory(Request $request)
+
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'category_name' => 'required|string|max:255',
         ]);
-        $serviceAccountPath = storage_path('app/firebase/credentials.json');
 
-
-        $projectId = 'adikcosmetics-1518b'; // e.g. adik-cosmetics
+        $projectId = 'adikcosmetics-1518b'; // project id Firestore
         $accessToken = FirebaseHelper::getAccessToken();
 
         $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/categories";
@@ -38,18 +37,19 @@ class CategoryController extends Controller
         ]);
 
         if ($response->successful()) {
-            return redirect()->back()->with('success', 'Category added successfully!');
+            return redirect()->route('admin.categories')->with('success', 'Category added successfully!');
         } else {
             return redirect()->back()->with('error', 'Failed to add category.');
         }
     }
-    public function index()
+
+    public function index(Request $request)
     {
+        $search = $request->query('search');
         $projectId = 'adikcosmetics-1518b';
         $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
 
         $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/categories";
-
         $response = \Illuminate\Support\Facades\Http::withToken($accessToken)->get($url);
 
         $categories = [];
@@ -59,17 +59,24 @@ class CategoryController extends Controller
 
             foreach ($documents as $doc) {
                 $fields = $doc['fields'];
+                $categoryName = $fields['category_name']['stringValue'] ?? '';
+
+                // Filter ikut search jika ada
+                if ($search && stripos($categoryName, $search) === false) {
+                    continue;
+                }
 
                 $categories[] = [
-                    'id' => basename($doc['name']), // document ID
-                    'category_name' => $fields['category_name']['stringValue'] ?? 'N/A',
+                    'id' => basename($doc['name']),
+                    'category_name' => $categoryName,
                     'created_at' => $fields['created_at']['timestampValue'] ?? '',
                 ];
             }
         }
 
-        return view('admin.all-categories', compact('categories'));
+        return view('admin.manage-categories', compact('categories'));
     }
+
     // Show edit form
     public function edit($id)
     {

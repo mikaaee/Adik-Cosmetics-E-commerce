@@ -46,11 +46,13 @@ header nav ul li a {
     text-decoration: none;
     word-spacing: 20px;
     font-size: 16px;
-    transition: color 0.3s;
+    transition: color 0.3s ease, background-color 0.3s ease;
 }
 
+/* Semua link hover: tukar teks je */
 header nav ul li a:hover {
     color: #000;
+    background-color: transparent; /* 👈 force clear background */
 }
 
 header nav ul li a span {

@@ -7,7 +7,7 @@
         <h2>Add New Category</h2>
 
         <!-- Form Add Category -->
-        <form action="{{ route('admin.store-category') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <!-- Category Name -->
