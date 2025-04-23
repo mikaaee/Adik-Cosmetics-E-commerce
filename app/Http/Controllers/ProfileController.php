@@ -1,115 +1,95 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
 
 class ProfileController extends Controller
 {
-    public function __construct()
+    /* ---------- Papar profil ---------- */
+    public function profile()
     {
-        // Middleware auth dikeluarkan
-    }
-
-    // Papar Profile (Maklumat peribadi)
-    public function profile(Request $request)
-    {
-        $userData = session('user_data');
-        if (!$userData || !isset($userData['uid'])) {
+        $user = session('user_data');
+        if (!$user || !isset($user['uid'])) {
             return redirect()->route('login.form')->with('error', 'Please login first.');
         }
-
-        // Firebase project info
+    
+        $uid = $user['uid'];
         $projectId = 'adikcosmetics-1518b';
-
-        $uid = $userData['uid'];
-
-        // API endpoint untuk ambil data pengguna
         $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$uid";
+    
+        // Hapus token kerana sudah cukup dengan UID untuk Firestore rules
         $response = Http::get($url);
-
         if ($response->failed()) {
-            dd("Firestore error:", $response->json());
+            dd('Firestore error:', $response->json());
         }
-
-        $userData = $response->json();
-
-        // Check kalau document memang tak ada
-        if (!isset($userData['fields'])) {
-            dd("User data tak wujud dalam Firestore:", $userData);
-        }
-
-        // Ambil data pengguna yang diperlukan sahaja
-        $user = [
-            'name' => $userData['fields']['name']['stringValue'] ?? '',
-            'email' => $userData['fields']['email']['stringValue'] ?? '',
-            'phone' => $userData['fields']['phone']['stringValue'] ?? '',
+    
+        $doc = $response->json();
+        $data = $doc['fields'] ?? [];
+    
+        $userProfile = [
+            'name'  => $data['name']['stringValue'] ?? '',
+            'email' => $data['email']['stringValue'] ?? '',
+            'phone' => $data['phone']['stringValue'] ?? '',
         ];
-
-        return view('dashboard.profile', compact('user'));
+    
+        return view('dashboard.profile', compact('userProfile'));
     }
-
-    // Edit Profile
+    
+    /* ---------- Borang edit ---------- */
     public function editProfile()
     {
-        $userData = session('user_data');
-
-        if (!$userData || !isset($userData['uid'])) {
+        $user = session('user_data');
+        if (!$user || !isset($user['uid'])) {
             return redirect()->route('login.form')->with('error', 'Please login first.');
         }
 
-        $uid = $userData['uid'];
-        $projectId = 'adikcosmetics-1518b';
+        $uid        = $user['uid'];
+        $projectId  = 'adikcosmetics-1518b';
+        $url        = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$uid";
 
-        // API untuk ambil data profile
-        $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$uid";
         $response = Http::get($url);
-
         if ($response->failed()) {
             return back()->with('error', 'Unable to fetch profile.');
         }
 
-        $userData = $response->json();
+        $data = $response->json()['fields'] ?? [];
 
-        $user = [
-            'name' => $userData['fields']['name']['stringValue'] ?? '',
-            'email' => $userData['fields']['email']['stringValue'] ?? '',
-            'phone' => $userData['fields']['phone']['stringValue'] ?? '',
+        $userProfile = [
+            'name'  => $data['name']['stringValue']  ?? '',
+            'email' => $data['email']['stringValue'] ?? '',
+            'phone' => $data['phone']['stringValue'] ?? '',
         ];
 
-        return view('dashboard.edit-profile', compact('user'));
+        return view('dashboard.edit-profile', compact('userProfile'));
     }
 
-    // Kemas kini Profile
+    /* ---------- Simpan kemas kini ---------- */
     public function updateProfile(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name'  => 'required|string|max:255',
             'phone' => 'required|string|max:20',
         ]);
 
-        // Ambil data pengguna dari session
-        $userData = session('user_data');
-        if (!$userData || !isset($userData['uid'])) {
+        $user = session('user_data');
+        if (!$user || !isset($user['uid'])) {
             return redirect()->route('login.form')->with('error', 'Please login first.');
         }
 
-        $uid = $userData['uid'];
-        $projectId = 'adikcosmetics-1518b';
-
-        // Endpoint untuk kemas kini profile
-        $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$uid?updateMask.fieldPaths=name&updateMask.fieldPaths=phone";
+        $uid        = $user['uid'];
+        $projectId  = 'adikcosmetics-1518b';
+        $url        = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$uid?updateMask.fieldPaths=name&updateMask.fieldPaths=phone";
 
         $updateData = [
             'fields' => [
-                'name' => ['stringValue' => $request->name],
+                'name'  => ['stringValue' => $request->name],
                 'phone' => ['stringValue' => $request->phone],
-            ]
+            ],
         ];
 
         $response = Http::patch($url, $updateData);
-
         if ($response->failed()) {
             return back()->with('error', 'Failed to update profile.');
         }

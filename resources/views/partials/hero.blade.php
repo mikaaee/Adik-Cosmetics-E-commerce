@@ -1,7 +1,6 @@
 <section class="hero">
-    <h1>SHOP AND SHINE</h1>
-    <p>with</p>
-    <h1>ADIK COSMETICS HOUSE</h1>
-    <p>Own your look, own the day because you deserve the best for your skin</p>
-    <a href="#" class="btn-shop">Shop Now</a>
+    <h1>Glow Up &amp; Own the Day</h1>
+    <!--<p class="brand">with US</p>-->
+    <p class="tagline">Your beauty, your rules – because flawless skin isn’t a luxury, it’s your right.</p>
+    <a href="{{ route('products.all') }}" class="btn-shop">Shop Now</a>
 </section>

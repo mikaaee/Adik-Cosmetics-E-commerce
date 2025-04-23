@@ -5,12 +5,14 @@ use Kreait\Firebase\Contract\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
 use Kreait\Firebase\Auth as FirebaseAuth;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +45,10 @@ Route::get('/check-session', function () {
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
+Route::get('/', function () {
+    return session()->has('user_data') ? redirect()->route('home') : redirect()->route('guest.home');
+});
+
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 
@@ -66,6 +72,44 @@ Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('user.
 Route::post('/profile/update', [UserController::class, 'updateProfile'])->name('user.profile.update');
 Route::get('/order-history', [UserController::class, 'orderHistory'])->name('user.orderHistory');
 Route::get('/address', [UserController::class, 'address'])->name('user.address');
+
+// Only one route for both guest and logged-in users
+Route::get('/category/{categoryId}/products', [UserController::class, 'showProductsByCategory'])->name('category.products');
+
+
+
+// Route untuk search
+Route::get('/search', [UserController::class, 'search'])->name('search');
+//cart route
+// Untuk guest - redirect ke halaman login atau register
+Route::post('/cart/guest/add/{productId}', [CartController::class, 'addToCart'])->name('cart.guest.add');
+Route::post('/cart/add/{id}',    [CartController::class, 'addToCart'])->name('cart.add');
+Route::patch('/cart/update/{id}',[CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/remove/{id}',[CartController::class, 'remove'])->name('cart.remove');
+Route::get('/cart',              [CartController::class, 'viewCart'])->name('cart.view');
+
+//display all products
+Route::get('/products', [UserController::class, 'allProducts'])
+      ->name('products.all');
+// Route untuk melihat detail produk
+Route::get('/products/{id}', [UserController::class, 'show'])->name('products.show');
+
+// Route untuk checkout page (GET)
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+
+// Route untuk submit checkout (POST)
+Route::post('/checkout', [CheckoutController::class, 'submit'])->name('checkout.submit');
+
+// Route untuk checkout success page
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+
+
+
+
+
+
+
 
 
 

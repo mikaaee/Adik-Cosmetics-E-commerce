@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -24,16 +23,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        View::composer('layouts.header-home', function ($view) {
-            // Ambil kategori dari Firestore menggunakan REST API
-            $response = Http::get('https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/categories');
+        // Ambil kategori dari Firestore menggunakan REST API
+        $response = Http::get('https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/categories');
 
-            // Dekod JSON response
-            $categories = json_decode($response->body(), true)['documents'] ?? [];
+        // Dekod JSON response
+        $documents = json_decode($response->body(), true)['documents'] ?? [];
 
-            // Pass data kategori ke view
-            $view->with('categories', $categories);
-        });
+        // Memproses dokumen kategori untuk mengambil ID dan nama kategori
+        $categories = [];
+        foreach ($documents as $doc) {
+            $fields = $doc['fields'] ?? [];
+            $categories[] = [
+                'id' => basename($doc['name']),  // Ambil ID kategori berdasarkan nama dokumen
+                'name' => $fields['category_name']['stringValue'] ?? 'No Name', // Ambil nama kategori
+            ];
+        }
 
+        // Share kategori ke semua view
+        View::share('categories', $categories);
     }
+
 }

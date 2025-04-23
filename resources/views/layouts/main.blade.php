@@ -13,16 +13,15 @@
 
     <!-- External CSS -->
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+
 </head>
+
 
 <body>
 
     {{-- Dynamic Header --}}
-    @if (View::hasSection('header'))
-        @yield('header')
-    @else
-        @include('partials.header-home')
-    @endif
+    @yield('header')
+
 
 
     <main>
@@ -30,7 +29,6 @@
             {{-- Shared Hero Section --}}
             @include('partials.hero')
             {{-- Shared Featured Products --}}
-            @include('partials.feature-products')
         @endif
 
 

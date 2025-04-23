@@ -50,15 +50,17 @@ header nav ul li a {
 }
 
 /* Semua link hover: tukar teks je */
-header nav ul li a:hover {
+/*header nav ul li a:hover {
     color: #000;
-    background-color: transparent; /* 👈 force clear background */
-}
+    background-color: transparent;
+    /* 👈 force clear background 
+}*/
 
 header nav ul li a span {
     margin-left: 8px;
     /* Jarak antara icon dan text */
 }
+
 header nav ul li form {
     display: flex;
     align-items: center;
@@ -135,25 +137,22 @@ nav ul li .dropdown-content li a {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-nav ul li .dropdown-content li a:hover {
-    background-color: #c69c9c;
-    color: #fff;
-}
 
 /* Hover effect on parent dropdown */
-nav ul li:hover > a {
+/*nav ul li:hover>a {
     color: #a17777;
     background-color: #fff;
     border-radius: 8px;
     padding: 12px 20px;
-}
+}*/
+
 .search-form {
     display: flex;
     align-items: center;
     background-color: white;
     border-radius: 30px;
     padding: 5px 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .search-form input[type="text"] {
@@ -186,7 +185,7 @@ nav ul li:hover > a {
 .hero {
     height: 100vh;
     /* Full screen height */
-    background-image: url('https://images.unsplash.com/photo-1608068811588-3a67006b7489?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D');
+    background-image: url('https://images.unsplash.com/photo-1632322781997-8fb327c7ac9b?q=80&w=1975&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
     background-size: cover;
     /* Make sure it covers the section */
     background-position: center;
@@ -197,7 +196,7 @@ nav ul li:hover > a {
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: #000;
+    color: #926060;
     /* Text color white for contrast */
     padding: 0 20px;
     position: relative;
@@ -223,15 +222,16 @@ nav ul li:hover > a {
 }
 
 .hero h1 {
-    font-size: 75px;
+    font-size: 95px;
     margin-bottom: 15px;
 }
 
 .hero p {
-    font-size: 22px;
+    font-size: 52px;
     margin-bottom: 20px;
-    color: #fff;
+    color: #000;
 }
+
 
 .btn-shop {
     background-color: #c69c9c;
@@ -249,6 +249,44 @@ nav ul li:hover > a {
     transform: scale(1.1);
 }
 
+/*categories*/
+.categories h2 {
+    text-align: center;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1.5rem;
+    margin-top: 20px;
+}
+
+.category-grid p {
+    text-align: center;
+}
+
+.category-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f7f7f7;
+    padding: 30px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-align: center;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.category-card:hover {
+    background-color: #e5e5e5;
+    transform: translateY(-3px);
+}
+
+
 /* Products Section */
 .products {
     padding: 50px 20px;
@@ -263,53 +301,250 @@ nav ul li:hover > a {
 
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
-    padding: 0 50px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    /* Reduced min-width */
+    gap: 20px;
+    padding: 20px;
 }
 
 .product-card {
     background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 20px;
+    border-radius: 10px;
+    /* Reduced border radius */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Reduced shadow opacity */
+    padding: 15px;
+    /* Reduced padding */
     transition: transform 0.3s;
+    text-align: center;
+    /* Center text inside the card */
 }
 
 .product-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
+    /* Slight hover lift */
 }
 
 .product-card img {
     width: 100%;
-    border-radius: 10px;
-    margin-bottom: 15px;
+    border-radius: 8px;
+    /* Reduced border radius for images */
+    margin-bottom: 10px;
+    /* Reduced bottom margin */
+    max-height: 120px;
+    /* Restrict image height */
+    object-fit: contain;
+    /* Maintain aspect ratio */
 }
 
 .product-card h3 {
-    font-size: 20px;
+    font-size: 16px;
+    /* Reduced font size */
     color: #c69c9c;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    /* Reduced margin */
 }
 
 .product-card p {
-    font-size: 16px;
-    margin-bottom: 15px;
+    font-size: 14px;
+    /* Reduced font size */
+    margin-bottom: 10px;
+    /* Reduced margin */
 }
 
 .add-to-cart-btn {
     background-color: #c69c9c;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 15px;
+    /* Reduced padding */
     border-radius: 20px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-size: 14px;
+    /* Reduced button font size */
 }
 
 .add-to-cart-btn:hover {
     background-color: #a17777;
 }
+
+/* Cart Icon Style */
+.cart-icon {
+    position: relative;
+    display: inline-block;
+    font-size: 24px;
+    /* Icon size */
+    /*color: #000;  Colour for the cart icon */
+}
+
+.cart-icon a {
+    color: white;
+    /*Cart icon color */
+    padding: 10px;
+    border-radius: 50%;
+    /* Circular background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.cart-icon a:hover {
+    color: #f1f1f1;
+    /* Slightly grey background on hover */
+}
+
+/* Cart count styles */
+.cart-count {
+    position: absolute;
+    top: -5px;
+    /* Position the count at the top right */
+    right: -5px;
+    /* Position the count at the top right */
+    background-color: red;
+    /* Red background for cart count */
+    color: white;
+    /* White text */
+    font-size: 14px;
+    /* Font size for the count */
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Optional: Hover effect on the cart count */
+.cart-icon:hover .cart-count {
+    background-color: darkred;
+    /* Darker red when hovered */
+}
+
+/* Cart Styles */
+.cart {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.cart h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table,
+th,
+td {
+    border: 1px solid #ddd;
+}
+
+th,
+td {
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.cart-item img {
+    width: 80px;
+    height: auto;
+    margin-right: 10px;
+}
+
+.cart-item span {
+    font-weight: bold;
+}
+
+.cart-summary {
+    text-align: right;
+    font-size: 18px;
+}
+
+.cart-summary span {
+    font-weight: bold;
+    color: #d9534f;
+}
+.qty-form {
+    display: inline-flex;
+    align-items: center;
+}
+
+.qty-input {
+    width: 60px;
+    text-align: center;
+    border: 1px solid #ddd;
+    height: 32px;
+}
+
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.qty-btn:hover {
+    background: #e2e2e2;
+}
+
+
+button.checkout {
+    background-color: #c69c9c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 15px;
+    transition: background-color 0.3s ease;
+}
+
+button.checkout:hover {
+    background-color: #a87474;
+}
+
+button.remove {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+button.remove i {
+    margin-right: 5px;
+}
+
+button.remove:hover {
+    background-color: #c9302c;
+}
+
+/*allProducts*/
+.product-catalog{display:flex;gap:20px;padding:20px}
+.filter-section{background:#f4f4f4;padding:15px;width:200px;border-radius:20px}
+.filter-section ul{list-style:none;padding:0}
+.filter-section li{margin:8px 0;font-size:14px}
+
+.product-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;flex-grow:1}
+.product-card{background:#fff;padding:15px;text-align:center;border-radius:10px;box-shadow:0 4px 8px rgba(0,0,0,.1);transition:transform .2s}
+.product-card img{width:100%;border-radius:10px}
+.product-card:hover{transform:scale(1.05)}
+.product-card button{background:#c69c9c;color:#fff;padding:8px 12px;border:none;cursor:pointer;border-radius:15px;margin-top:10px}
+.product-card button:hover{background:#a87474}
+
 
 /* Footer */
 /* Layout wrapper to keep footer at bottom */
