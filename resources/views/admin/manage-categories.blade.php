@@ -7,7 +7,7 @@
 
         <!-- All Categories -->
         <div class="container">
-            <h1 class="page-title">Manage Products</h1>
+            <h1 class="page-title" style="margin-top: 30px">Manage Categories</h1>
 
             <h2>All Categories</h2>
             <a href="{{ route('admin.categories.create') }}" class="add-btn">

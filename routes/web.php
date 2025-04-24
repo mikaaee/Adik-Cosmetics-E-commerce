@@ -144,7 +144,7 @@ Route::prefix('admin')->group(function () {
     */
     Route::get('/products', [ProductController::class, 'index'])->name('admin.products');
     Route::get('/create', [ProductController::class, 'create'])->name('admin.products.create');
-    Route::post('/store-product', [ProductController::class, 'storeProduct'])->name('admin.store-product');
+    Route::post('/store-product', [ProductController::class, 'store'])->name('admin.store-product');
     Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
     Route::put('/products/{id}/update', [ProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');

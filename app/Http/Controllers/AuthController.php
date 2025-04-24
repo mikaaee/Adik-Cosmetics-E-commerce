@@ -205,9 +205,19 @@ class AuthController extends Controller
     // ======== LOGOUT FUNCTION ========
     public function logout()
     {
-        session()->flush(); // clear semua session
-        return redirect()->route('login')->with('success', 'Logged out successfully!');
+        // padam nilai penting sahaja supaya token CSRF kekal
+        session()->forget(['user_data', 'cart']);
+    
+        // jika mahu betul‑betul bersih, boleh gunakan flush()
+        // session()->flush();
+    
+        // optional: regenerate session ID supaya lebih selamat
+        session()->regenerate();
+    
+        return redirect()->route('guest.home')
+                         ->with('success', 'Logged out successfully!');
     }
+    
 
     // ======== ACCESS TOKEN FOR FIRESTORE ========
     private function getAccessToken()

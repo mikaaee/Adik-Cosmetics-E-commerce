@@ -5,6 +5,8 @@
 @section('header')
     @include('partials.header-guest')
 @endsection
+{{-- debug sementara --}}
+ {{--{{ dd(session()->all()) }} --}}
 
 @section('content')
     {{-- Additional content khusus untuk guest page (optional) --}}
@@ -14,7 +16,7 @@
 
         <div class="category-grid">
             @forelse($categories as $cat)
-                <a href="{{ route('category.guest-products', $cat['id']) }}" class="category-card">
+                <a href="{{ route('category.products', $cat['id']) }}" class="category-card">
                     <h3>{{ $cat['name'] }}</h3>
                 </a>
             @empty

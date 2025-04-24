@@ -82,7 +82,7 @@ class ProductController extends Controller
         $response = Http::withToken($accessToken)->post($url, $data);
 
         if ($response->successful()) {
-            return redirect()->route('admin.add-product')->with('success', 'Product added successfully!');
+            return redirect()->route('admin.products.create')->with('success', 'Product added successfully!');
         } else {
             return redirect()->back()->with('error', 'Failed to add product: ' . $response->body());
         }
@@ -138,7 +138,7 @@ class ProductController extends Controller
                 // Apply filter
                 $matchSearch = !$search || stripos($product['name'], $search) !== false;
                 $matchCategory = !$filterCategory || $product['category'] == $filterCategory;
-    
+
                 if ($matchSearch && $matchCategory) {
                     $products[] = $product;
                 }

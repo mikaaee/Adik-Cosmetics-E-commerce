@@ -641,6 +641,7 @@ a {
     margin-right: 8px;
 }
 
+
 /* Search field part */
 
 .search-form {
@@ -717,12 +718,6 @@ a {
     border-radius: 8px;
 }
 
-.page-title {
-    font-size: 1.75rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
 .alert-success {
     background-color: #d1fae5;
     color: #065f46;
@@ -785,10 +780,45 @@ a {
     margin-bottom: 20px;
 }
 
+/* Tajuk tanpa margin berlebihan */
+.page-title{
+    margin:0;
+    font-size:1.75rem;
+    font-weight:700;
+}
+
+/* Field carian lebih kemas */
+.search-form{
+    display:flex;
+    gap:.75rem;
+}
+
+.search-input,
+.form-select{
+    padding:.45rem .8rem;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+.btn.btn-primary{
+    padding:.45rem 1rem;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+.product-page {
+    padding-top: 50px;
+}
+.table-wrapper {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
 /* Table Design */
 .product-page .custom-table {
     width: 100%;
     max-width: 1200px;
+    margin-top: 20px; /* Atau buang terus */
     border-collapse: collapse;
     background: #ffffff;
     border-radius: 8px;
