@@ -6,7 +6,7 @@
     <div class="product-page">
         <h1 class="page-title">Manage Products</h1>
         <h2>All Products</h2>
-        <form method="GET" action="{{ route('admin.products') }}" class="search-form"
+        <form method="GET" action="{{ route('admin.products.index') }}" class="search-form"
             style="margin-bottom: 20px; position: relative; z-index: 10;">
             <!-- Search Field -->
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products..."
@@ -34,7 +34,7 @@
             {{-- All Products List --}}
             <div class="all-products-section">
                 <a href="{{ route('admin.products.create') }}" class="add-btn">
-                    <i class="fas fa-plus"></i> Add Product</a>
+                    <i class="fas fa-plus"></i> Add </a>
 
                 @if (count($products) > 0)
                     <div class="table-responsive">

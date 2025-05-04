@@ -7,57 +7,78 @@
 @endsection
 
 @section('content')
+
+    <div class="container">
+        <div class="form-section">
+            <h2>Shipping Details</h2>
+            <p>Delivery address</p>
+            <form method="POST" action="{{ route('checkout.submit') }}">
+                @csrf
+
+                <div class="input-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" name="first_name" value="{{ $userData['first_name'] ?? '' }}" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" name="last_name" value="{{ $userData['last_name'] ?? '' }}" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" name="phone" value="{{ $userData['phone'] ?? '' }}" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="address">Address</label>
+                    <input type="text" name="address" value="{{ $userData['address'] ?? '' }}" required>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
+                        <label for="city">City</label>
+                        <input type="text" name="city" value="{{ $userData['city'] ?? '' }}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="postcode">Postcode</label>
+                        <input type="text" name="postcode" value="{{ $userData['postcode'] ?? '' }}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="country">Country</label>
+                        <input type="text" name="country" value="{{ $userData['country'] ?? '' }}" required>
+                    </div>
+                </div>
+
+                <button type="submit">Proceed to Payment</button>
+            </form>
+        </div>
+
+
+        <div class="order-summary">
+            <h3>Order Summary</h3>
+            @foreach ($cart as $item)
+                <div class="product">
+                    <img src="{{ $item['image_url'] }}" alt="Product Image">
+                    <div class="product-details">
+                        <p>{{ $item['name'] }}</p>
+                        <p>Qty: {{ $item['quantity'] }}</p>
+                        <p>Price: RM{{ number_format($item['price'], 2) }}</p>
+                    </div>
+                </div>
+            @endforeach
+            <div class="summary">
+                <p>Subtotal ({{ count($cart) }} items): <strong>RM{{ number_format($subtotal, 2) }}</strong></p>
+                <p>Shipping Cost: <strong>RM{{ number_format($shipping_cost, 2) }}</strong></p>
+                <hr>
+                <p class="total">Total: <strong>RM{{ number_format($total, 2) }}</strong></p>
+            </div>
+        </div>
+    </div>
     <!-- CSS for checkout page -->
     <style>
-        /* Progress Bar */
-        .progress-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 30px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .progress-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #7c3d4f;
-            font-size: 0.85em;
-        }
-
-        .progress-step .circle {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 2px solid #7c3d4f;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: white;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .progress-step.active .circle {
-            background-color: #9e5866;
-            color: white;
-            border-color: #9e5866;
-        }
-
-        .progress-step.completed .circle {
-            background-color: #7c3d4f;
-            color: white;
-        }
-
-        .progress-line {
-            height: 2px;
-            background-color: #7c3d4f;
-            width: 50px;
-            margin: 0 10px;
-        }
-
         /* Main Layout */
         .container {
             display: flex;
@@ -65,7 +86,7 @@
             justify-content: space-between;
             gap: 20px;
             max-width: 1000px;
-            margin: auto;
+            margin: 20px auto;
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
@@ -107,7 +128,6 @@
             padding: 8px;
             border-radius: 5px;
             border: 1px solid #ccc;
-            background-color: #e6e2e9;
         }
 
         .row {
@@ -178,95 +198,4 @@
             }
         }
     </style>
-    <div class="progress-container">
-        <div class="progress-step completed">
-            <div class="circle">✓</div>
-            <p>Sign In</p>
-        </div>
-        <div class="progress-line"></div>
-        <div class="progress-step active">
-            <div class="circle">2</div>
-            <p>Shipping Details</p>
-        </div>
-        <div class="progress-line"></div>
-        <div class="progress-step">
-            <div class="circle">3</div>
-            <p>Checkout</p>
-        </div>
-        <div class="progress-line"></div>
-        <div class="progress-step">
-            <div class="circle">4</div>
-            <p>Completed</p>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="form-section">
-            <h2>Shipping Details</h2>
-            <p>Delivery address</p>
-            <form action="{{ route('checkout.submit') }}" method="POST">
-                @csrf
-
-                <div class="row">
-                    <div class="input-group">
-                        <label for="first-name">First Name</label>
-                        <input type="text" id="first-name" name="first_name" required />
-                    </div>
-                    <div class="input-group">
-                        <label for="last-name">Last Name</label>
-                        <input type="text" id="last-name" name="last_name" required />
-                    </div>
-                </div>
-
-                <div class="input-group full-width">
-                    <label for="address">Address</label>
-                    <input type="text" id="address" name="address" required />
-                </div>
-
-                <div class="row">
-                    <div class="input-group">
-                        <label for="city">City</label>
-                        <input type="text" id="city" name="city" required />
-                    </div>
-                    <div class="input-group">
-                        <label for="postcode">Postcode</label>
-                        <input type="text" id="postcode" name="postcode" required />
-                    </div>
-                </div>
-
-                <div class="input-group full-width">
-                    <label for="country">Country</label>
-                    <input type="text" id="country" name="country" required />
-                </div>
-
-                <div class="input-group full-width">
-                    <label for="phone">Phone Number</label>
-                    <input type="text" id="phone" name="phone" required />
-                </div>
-
-                <button type="submit">Next</button>
-            </form>
-        </div>
-
-        <div class="order-summary">
-            <h3>Order Summary</h3>
-            @foreach ($cart as $item)
-                <div class="product">
-                    <img src="{{ $item['image_url'] }}" alt="Product Image">
-                    <div class="product-details">
-                        <p>{{ $item['name'] }}</p>
-                        <p>Qty: {{ $item['quantity'] }}</p>
-                        <p>Price: RM{{ number_format($item['price'], 2) }}</p>
-                    </div>
-                </div>
-            @endforeach
-            <div class="summary">
-                <p>Subtotal ({{ count($cart) }} items): <strong>RM{{ number_format($subtotal, 2) }}</strong></p>
-                <p>Shipping Cost: <strong>RM{{ number_format($shipping_cost, 2) }}</strong></p>
-                <hr>
-                <p class="total">Total: <strong>RM{{ number_format($total, 2) }}</strong></p>
-            </div>
-        </div>
-
-    </div>
 @endsection

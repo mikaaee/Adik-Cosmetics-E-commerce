@@ -8,6 +8,8 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- External CSS -->
     <link rel="stylesheet" href="{{ asset('css/register.css') }}">
@@ -17,7 +19,7 @@
 
     <div class="container">
         <div class="left">
-            <h1>ADIK COSMETICS HOUSE</h1>
+            <img src="{{ asset('images/logoac.png') }}" alt="ADIK COSMETICS HOUSE">
             <a href="{{ route('register.form') }}" style="text-decoration: none;">
                 <h3>REGISTER</h3>
             </a>
@@ -40,7 +42,13 @@
 
                     <div class="input-box">
                         <i class="fa fa-user"></i>
-                        <input type="text" name="name" placeholder="Name" value="{{ old('name') }}" required>
+                        <input type="text" name="first_name" placeholder="First Name" value="{{ old('first_name') }}"
+                            required>
+                    </div>
+                    <div class="input-box">
+                        <i class="fa fa-user"></i>
+                        <input type="text" name="last_name" placeholder="Last Name" value="{{ old('last_name') }}"
+                            required>
                     </div>
 
                     <div class="input-box">
@@ -51,6 +59,28 @@
                     <div class="input-box">
                         <i class="fa fa-phone"></i>
                         <input type="text" name="phone" placeholder="Phone Number" value="{{ old('phone') }}"
+                            required>
+                    </div>
+
+                    <div class="input-box">
+                        <i class="fa fa-home"></i>
+                        <input type="text" name="address" placeholder="Address" value="{{ old('address') }}"
+                            required>
+                    </div>
+                    <div class="input-box">
+                        <i class="fa fa-city"></i>
+                        <input type="text" name="city" placeholder="City" value="{{ old('city') }}"required>
+                    </div>
+
+                    <div class="input-box">
+                        <i class="fa fa-envelope"></i>
+                        <input type="text" name="postcode" placeholder="Postcode" value="{{ old('postcode') }}"
+                            required>
+                    </div>
+
+                    <div class="input-box">
+                        <i class="fa fa-globe"></i>
+                        <input type="text" name="country" placeholder="Country" value="{{ old('country') }}"
                             required>
                     </div>
 
@@ -71,6 +101,16 @@
             </div>
         </div>
     </div>
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Pendaftaran Berjaya!',
+                text: '{{ session('success') }}',
+                showConfirmButton: true
+            });
+        </script>
+    @endif
 
 </body>
 

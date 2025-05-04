@@ -815,6 +815,48 @@ a {
 }
 
 /* Table Design */
+/* Table Design */
+.orders-page .custom-table {
+    width: 100%;
+    max-width: 960px;
+    margin-top: 20px auto; /* Atau buang terus */
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.orders-page .custom-table th,
+.orders-page .custom-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.orders-page .custom-table thead {
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+.orders-page .custom-table tbody tr {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+.orders-page .custom-table tbody tr:nth-child(even) {
+    background-color: #e9ecef;
+}
+
+.orders-page .custom-table tbody tr:hover {
+    background-color: #e2e6ea;
+}
+.orders-page {
+    padding: 0 20px;
+    max-width: 1000px; /* same as table max-width */
+    margin: auto;
+}
+
+
 .product-page .custom-table {
     width: 100%;
     max-width: 1200px;

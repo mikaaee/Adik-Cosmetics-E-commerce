@@ -93,39 +93,39 @@ class ProductController extends Controller
     {
         $projectId = 'adikcosmetics-1518b';
         $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-    
+
         // Get categories
         $urlCategories = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/categories";
         $responseCategories = Http::withToken($accessToken)->get($urlCategories);
-    
+
         $categories = [];
-    
+
         if ($responseCategories->successful()) {
             $documents = $responseCategories->json()['documents'] ?? [];
-    
+
             foreach ($documents as $doc) {
                 $fields = $doc['fields'];
-    
+
                 $categories[] = [
                     'id' => basename($doc['name']),
                     'category_name' => $fields['category_name']['stringValue'] ?? '',
                 ];
             }
         }
-    
+
         $search = $request->input('search');
         $filterCategory = $request->input('category');
         $products = [];
-    
+
         $urlProducts = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products";
         $responseProducts = Http::withToken($accessToken)->get($urlProducts);
-    
+
         if ($responseProducts->successful()) {
             $documents = $responseProducts->json()['documents'] ?? [];
-    
+
             foreach ($documents as $doc) {
                 $fields = $doc['fields'];
-    
+
                 $product = [
                     'id' => basename($doc['name']),
                     'name' => $fields['name']['stringValue'] ?? '',
@@ -134,7 +134,7 @@ class ProductController extends Controller
                     'category' => $fields['category']['stringValue'] ?? '',
                     'image_url' => $fields['image_url']['stringValue'] ?? '',
                 ];
-    
+
                 // Apply filter
                 $matchSearch = !$search || stripos($product['name'], $search) !== false;
                 $matchCategory = !$filterCategory || $product['category'] == $filterCategory;
@@ -144,10 +144,10 @@ class ProductController extends Controller
                 }
             }
         }
-    
+
         return view('admin.manage-products', compact('products', 'categories'));
     }
-    
+
     public function edit($id)
     {
         $projectId = 'adikcosmetics-1518b';
@@ -289,9 +289,14 @@ class ProductController extends Controller
                 return redirect()->route('admin.products')->with('error', 'Failed to delete product!');
             }
         } catch (\Exception $e) {
-            return redirect()->route('admin.products')->with('error', 'Error deleting product: ' . $e->getMessage());
+            return redirect()->route('admin.products.index')->with('error', 'Error deleting product: ' . $e->getMessage());
         }
     }
+    public function show($id)
+    {
+        return redirect()->route('admin.products.index')->with('info', 'Show product not implemented yet.');
+    }
+
     public function featuredProducts()
     {
         // Firestore project info

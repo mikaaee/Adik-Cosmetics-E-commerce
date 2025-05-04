@@ -138,10 +138,14 @@ class CategoryController extends Controller
         $response = \Illuminate\Support\Facades\Http::withToken($accessToken)->delete($url);
 
         if ($response->successful()) {
-            return redirect()->route('admin.categories')->with('success', 'Category deleted successfully!');
+            return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully!');
         }
 
         return redirect()->back()->with('error', 'Failed to delete category.');
+    }
+    public function show($id)
+    {
+        return redirect()->route('admin.categories.index')->with('info', 'Show product not implemented yet.');
     }
 
 

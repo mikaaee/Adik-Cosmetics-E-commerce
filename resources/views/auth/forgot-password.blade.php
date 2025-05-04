@@ -11,6 +11,8 @@
 
     <!-- External CSS -->
     <link rel="stylesheet" href="{{ asset('css/forgot-password.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
@@ -18,11 +20,11 @@
     <div class="container">
         <!-- LEFT SIDE -->
         <div class="left">
-            <h1>ADIK COSMETICS HOUSE</h1>
-            <a href="{{ route('register.form') }}"  style="text-decoration: none;">
+            <img src="{{ asset('images/logoac.png') }}" alt="ADIK COSMETICS HOUSE">
+            <a href="{{ route('register.form') }}" style="text-decoration: none;">
                 <h3>REGISTER</h3>
             </a>
-            <a href="{{ route('login.form') }}"  style="text-decoration: none;">
+            <a href="{{ route('login.form') }}" style="text-decoration: none;">
                 <h3>LOGIN</h3>
             </a>
         </div>
@@ -60,10 +62,32 @@
                         Remember your password? <a href="{{ route('login.form') }}">Login here</a>
                     </div>
                 </form>
+                
+                @if (session('success'))
+                    <script>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: '{{ session('success') }}',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    </script>
+                @endif
+
+                @if (session('error'))
+                    <script>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: '{{ session('error') }}',
+                        });
+                    </script>
+                @endif
+
             </div>
         </div>
     </div>
-
 </body>
 
 </html>

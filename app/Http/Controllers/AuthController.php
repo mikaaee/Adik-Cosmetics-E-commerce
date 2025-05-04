@@ -28,10 +28,15 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
             'email' => 'required|email',
             'phone' => 'required|string',
             'password' => 'required|string|min:6',
+            'address' => 'required|string',
+            'city' => 'required',
+            'postcode' => 'required',
+            'country' => 'required',
         ]);
 
         try {
@@ -56,10 +61,15 @@ class AuthController extends Controller
             $response = $client->post($url, [
                 'json' => [
                     'fields' => [
-                        'name' => ['stringValue' => $request->name],
+                        'first_name' => ['stringValue' => $request->first_name],
+                        'last_name' => ['stringValue' => $request->last_name],
                         'email' => ['stringValue' => $request->email],
                         'phone' => ['stringValue' => $request->phone],
                         'role' => ['stringValue' => $role],
+                        'address' => ['stringValue' => $request->address],
+                        'city' => ['stringValue' => $request->city],
+                        'postcode' => ['stringValue' => $request->postcode],
+                        'country' => ['stringValue' => $request->country],
                     ]
                 ],
                 'headers' => [
@@ -72,18 +82,27 @@ class AuthController extends Controller
             }
 
             // 4. Save session
+
             // 4. Save session to Firestore
             $this->storeSessionInFirestore([
                 'uid' => $uid,
-                'name' => $request->name,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'role' => $role,
+                'address' => $request->address,
+                'city' => $request->city,
+                'postcode' => $request->postcode,
+                'country' => $request->country,
+
             ]);
 
 
             // 5. Redirect ikut role
+            session()->flash('success', 'Register Successful! Please login.');
             return $this->redirectUser($role);
+           
 
         } catch (\Throwable $e) {
             return back()->with('error', 'Registration failed: ' . $e->getMessage());
@@ -136,10 +155,15 @@ class AuthController extends Controller
             // 4. Simpan session ke Firestore
             $this->storeSessionInFirestore([
                 'uid' => $uid,
-                'name' => $fields['name']['stringValue'] ?? '',
+                'first_name' => $fields['first_name']['stringValue'] ?? '',
+                'last_name' => $fields['last_name']['stringValue'] ?? '',
                 'email' => $fields['email']['stringValue'] ?? '',
                 'phone' => $fields['phone']['stringValue'] ?? '',
                 'role' => $role,
+                'address' => $fields['address']['stringValue'] ?? '',
+                'city' => $fields['city']['stringValue'] ?? '',
+                'postcode' => $fields['postcode']['stringValue'] ?? '',
+                'country' => $fields['country']['stringValue'] ?? '', // Tambah dalam session data
             ]);
 
 
@@ -164,60 +188,91 @@ class AuthController extends Controller
             'email' => 'required|email',
         ]);
 
+        $email = $request->input('email');
+
         try {
-            $this->auth->sendPasswordResetEmail($request->email);
+            $this->auth->sendPasswordResetLink($email); // ✅ GUNA METHOD YANG BETUL
 
-            return back()->with('success', 'Password reset link sent!');
-
-        } catch (\Throwable $e) {
-            return back()->with('error', 'Failed to send reset link: ' . $e->getMessage());
+            return back()->with('success', 'Reset email has been sent. Please check your inbox.');
+        } catch (\Exception $e) {
+            \Log::error('Reset link error: ' . $e->getMessage());
+            return back()->with('error', 'Failed to send reset email.');
         }
     }
+
+
+    public function showResetPasswordForm(Request $request)
+    {
+        $oobCode = $request->query('oobCode');
+        return view('auth.reset-password', compact('oobCode'));
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'oobCode' => 'required|string',
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+
+        try {
+            $this->auth->confirmPasswordReset($request->oobCode, $request->new_password);
+            return redirect()->route('login')->with('success', 'Password updated successfully!');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to reset password: ' . $e->getMessage());
+        }
+    }
+
     private function storeSessionInFirestore($userData)
     {
         $projectId = 'adikcosmetics-1518b';
         $uid = $userData['uid'];
         $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/sessions/$uid";
-    
+
         $sessionData = [
             'fields' => [
-                'name' => ['stringValue' => $userData['name']],
+                'first_name' => ['stringValue' => $userData['first_name']],
+                'last_name' => ['stringValue' => $userData['last_name']],
                 'email' => ['stringValue' => $userData['email']],
                 'phone' => ['stringValue' => $userData['phone']],
-                'last_activity' => ['timestampValue' =>now()->setTimezone('Asia/Kuala_Lumpur')->toISOString()
-            ],
+                'address' => ['stringValue' => $userData['address']],
+                'city' => ['stringValue' => $userData['city']],
+                'postcode' => ['stringValue' => $userData['postcode']],
+                'country' => ['stringValue' => $userData['country']], // Tambah dalam fields
+                'last_activity' => [
+                    'timestampValue' => now()->setTimezone('Asia/Kuala_Lumpur')->toISOString()
+                ],
             ]
         ];
-    
+
         $response = \Illuminate\Support\Facades\Http::withToken($this->getAccessToken())
-                    ->patch($url, $sessionData); // use PATCH instead of POST
-    
+            ->patch($url, $sessionData); // use PATCH instead of POST
+
         if ($response->failed()) {
             // optional: log error or handle fallback
             \Log::error('Failed to update session in Firestore', ['response' => $response->body()]);
         }
-    
+
         // Simpan juga dalam session Laravel
         session(['user_data' => $userData]);
     }
-    
+
 
     // ======== LOGOUT FUNCTION ========
     public function logout()
     {
         // padam nilai penting sahaja supaya token CSRF kekal
         session()->forget(['user_data', 'cart']);
-    
+
         // jika mahu betul‑betul bersih, boleh gunakan flush()
         // session()->flush();
-    
+
         // optional: regenerate session ID supaya lebih selamat
         session()->regenerate();
-    
+
         return redirect()->route('guest.home')
-                         ->with('success', 'Logged out successfully!');
+            ->with('success', 'Logged out successfully!');
     }
-    
+
 
     // ======== ACCESS TOKEN FOR FIRESTORE ========
     private function getAccessToken()

@@ -39,17 +39,17 @@
                     <span>Dashboard</span>
                 </li>
 
-                <li onclick="location.href='{{ route('admin.categories') }}'">
+                <li onclick="location.href='{{ route('admin.categories.index') }}'">
                     <i class="fas fa-folder-open"></i>
                     <span>Manage Categories</span>
                 </li>
 
-                <li onclick="location.href='{{ route('admin.products') }}'">
+                <li onclick="location.href='{{ route('admin.products.index') }}'">
                     <i class="fas fa-boxes"></i>
                     <span>Manage Products</span>
                 </li>
 
-                <li onclick="location.href='{{ route('admin.orders.index') }}'">
+                <li onclick="location.href='{{ route('admin.manage-orders.index') }}'">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Manage Orders</span>
                 </li>
@@ -57,6 +57,16 @@
                 <li onclick="location.href='{{ route('admin.reports.index') }}'">
                     <i class="fas fa-chart-line"></i>
                     <span>Report</span>
+                </li>
+
+                <li onclick="location.href='{{ route('admin.invoices.index') }}'">
+                    <i class="fas fa-file-invoice-dollar"></i> 
+                    <span>Invoices</span>
+                </li>
+
+                <li onclick="location.href='{{ route('admin.ads.index') }}'">
+                    <i class="fas fa-bullhorn"></i> 
+                    <span>Manage Ads</span>
                 </li>
 
                 <li onclick="location.href='{{ route('logout') }}'">
@@ -80,8 +90,9 @@
                     <!-- Notification Icon -->
                     <button class="icon-btn" onclick="showNotifications()">
                         <i class="fas fa-bell"></i>
-                        <span class="badge">3</span> <!-- Example badge count -->
+                        <span class="badge" id="order-badge">0</span>
                     </button>
+
 
                     <!-- User Profile -->
                     <div class="user-profile" onclick="toggleProfileMenu()">
@@ -114,8 +125,31 @@
         }
 
         function showNotifications() {
-            alert("You have new notifications!");
+            Swal.fire({
+                title: 'Order Notification',
+                text: 'Ada pesanan baru masuk!',
+                icon: 'info',
+                confirmButtonText: 'View Orders',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('admin.manage-orders.index') }}";
+                }
+            });
         }
+
+        function fetchNewOrderCount() {
+            fetch('/admin/api/new-orders')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('order-badge');
+                    badge.innerText = data.count > 0 ? data.count : '';
+                });
+        }
+
+        setInterval(fetchNewOrderCount, 10000); // setiap 10 saat
+        window.onload = fetchNewOrderCount;
+
+
 
         function toggleProfileMenu() {
             const dropdown = document.getElementById('profileDropdown');

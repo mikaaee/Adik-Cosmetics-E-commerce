@@ -11,10 +11,10 @@
 
             <h2>All Categories</h2>
             <a href="{{ route('admin.categories.create') }}" class="add-btn">
-                <i class="fas fa-plus"></i> Add Category</a>
+                <i class="fas fa-plus"></i> Add </a>
 
 
-            <form method="GET" action="{{ route('admin.categories') }}" class="search-form" style="margin-bottom: 20px;">
+            <form method="GET" action="{{ route('admin.categories.index') }}" class="search-form" style="margin-bottom: 20px;">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Search category..."
                     class="search-input">
                     <button type="submit" class="btn btn-primary">

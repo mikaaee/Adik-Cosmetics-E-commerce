@@ -3,6 +3,16 @@
 @section('content')
     <div class="dashboard container">
         <h1 class="page-title">Dashboard</h1>
+        <div style="max-width: 600px; margin: 40px auto;">
+            <h3 style="text-align:center">Order Status (Pie Chart)</h3>
+            <canvas id="orderStatusChart"></canvas>
+        </div>
+
+        <div style="max-width: 700px; margin: 40px auto;">
+            <h3 style="text-align:center">Daily Orders (Last 7 Days)</h3>
+            <canvas id="dailyOrderChart"></canvas>
+        </div>
+
 
         <div class="dashboard-stats">
             <div class="stat-row">
@@ -67,4 +77,35 @@
             justify-content: center;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Pie Chart - Paid vs Pending
+            const pieCtx = document.getElementById('orderStatusChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Paid', 'Pending'],
+                    datasets: [{
+                        data: [{{ $paidOrders ?? 0 }}, {{ $pendingOrders ?? 0 }}],
+                        backgroundColor: ['#28a745', '#ffc107']
+                    }]
+                }
+            });
+
+            // Bar Chart - Last 7 days
+            const barCtx = document.getElementById('dailyOrderChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: {!! json_encode($last7Days ?? []) !!},
+                    datasets: [{
+                        label: 'Orders',
+                        data: {!! json_encode($ordersPerDay ?? []) !!},
+                        backgroundColor: '#007bff'
+                    }]
+                }
+            });
+        });
+    </script>
 @endsection

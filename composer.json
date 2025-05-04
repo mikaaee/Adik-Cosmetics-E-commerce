@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^3.1",
         "firebase/php-jwt": "^6.11",
         "google/auth": "^1.46",
         "guzzlehttp/guzzle": "^7.9",

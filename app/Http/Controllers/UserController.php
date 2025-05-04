@@ -17,18 +17,42 @@ class UserController extends Controller
         $this->projectId = config('services.firebase.project_id', env('FIREBASE_PROJECT_ID'));
         $this->apiKey = config('services.firebase.api_key', env('FIREBASE_API_KEY'));
     }
+    private function getAdsFromFirestore()
+    {
+        $ads = [];
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/ads?key={$this->apiKey}";
 
+        $response = Http::get($url);
+
+        if ($response->successful()) {
+            $documents = $response->json()['documents'] ?? [];
+
+            foreach ($documents as $doc) {
+                $fields = $doc['fields'];
+
+                $ads[] = [
+                    'title' => $fields['title']['stringValue'] ?? '',
+                    'image_url' => $fields['image_url']['stringValue'] ?? '',
+                ];
+            }
+        }
+
+        return $ads;
+    }
     public function userHome()
     {
-        $categories = $this->getCategoriesFromFirestore();  // Get categories
-        return view('dashboard.home', compact('categories'));  // Pass categories to the view
+        $categories = $this->getCategoriesFromFirestore();
+        $ads = $this->getAdsFromFirestore();
+        return view('dashboard.home', compact('categories', 'ads'));
     }
 
     public function guestHome()
     {
-        $categories = $this->getCategoriesFromFirestore();  // Get categories
-        return view('guest.guest', compact('categories'));  // Pass categories to the view
+        $categories = $this->getCategoriesFromFirestore();
+        $ads = $this->getAdsFromFirestore();
+        return view('guest.guest', compact('categories', 'ads'));
     }
+
 
     private function getCategoriesFromFirestore()
     {

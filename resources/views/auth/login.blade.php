@@ -18,7 +18,7 @@
     <div class="container">
         <!-- LEFT SIDE -->
         <div class="left">
-            <h1>ADIK COSMETICS HOUSE</h1>
+            <img src="{{ asset('images/logoac.png') }}" alt="ADIK COSMETICS HOUSE">
             <a href="{{ route('register.form') }}" style="text-decoration: none;">
                 <h3>REGISTER</h3>
             </a>

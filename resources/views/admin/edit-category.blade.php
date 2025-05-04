@@ -31,9 +31,9 @@
             <!-- Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-submit">
-                    <i class="fas fa-save"></i> Update Category
+                    <i class="fas fa-save"></i> Update 
                 </button>
-                <a href="{{ route('admin.categories') }}" class="btn-cancel">
+                <a href="{{ route('admin.categories.index') }}" class="btn-cancel">
                     <i class="fas fa-times"></i> Cancel
                 </a>
             </div>
