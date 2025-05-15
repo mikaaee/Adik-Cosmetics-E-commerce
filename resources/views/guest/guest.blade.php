@@ -7,7 +7,8 @@
 @endsection
 
 @section('hero')
-    @include('partials.hero')
+    @include('partials.hero', ['ads' => $ads])
+
 @endsection
 
 @section('content')

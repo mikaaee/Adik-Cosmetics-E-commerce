@@ -38,7 +38,7 @@
         @if (session('success'))
             Swal.fire({
                 icon: 'success',
-                title: 'Berjaya!',
+                title: 'Succes!',
                 text: '{{ session('success') }}',
                 timer: 2000,
                 showConfirmButton: false

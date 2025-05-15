@@ -39,38 +39,32 @@
                 </select>
             </div>
 
+
             <!-- Image -->
             <div class="form-group">
                 <label for="image">Product Image</label>
                 <input type="file" name="image" id="image" accept="image/*" required>
             </div>
 
+            <!-- Promo Checkbox -->
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="is_promo" name="is_promo" value="1"
+                    {{ old('is_promo', $product['is_promo'] ?? false) ? 'checked' : '' }}
+                    style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="is_promo" style="margin: 0; font-weight: 500; color: #2c3e50;">
+                    Mark this product as a <strong>PROMOTION</strong> item
+                </label>
+            </div>
+
+
             <!-- Submit -->
-            <button type="submit" class="btn-submit">Add Product</button>
+            <button type="submit" class="btn-submit">Add</button>
         </form>
     </div>
-
-    <!-- SweetAlert2 Script -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    @if (session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: '{{ session('success') }}',
-                showConfirmButton: false,
-                timer: 3000
-            })
-        </script>
-    @endif
-    @if ($errors->any())
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops! Something went wrong.',
-                html: `{!! implode('<br>', $errors->all()) !!}`,
-            });
-        </script>
-    @endif
+    <style>
+        input[type="checkbox"] {
+            transform: scale(1.1);
+            margin-right: 8px;
+        }
+    </style>
 @endsection

@@ -17,7 +17,8 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
-        h2, label {
+        h2,
+        label {
             color: #7c3d4f;
         }
 
@@ -27,7 +28,8 @@
             margin-bottom: 6px;
         }
 
-        input, select {
+        input,
+        select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
@@ -80,38 +82,34 @@
     </style>
 
     <div class="container">
-        <h2>Payment Details</h2>
-        <form method="POST" action="{{ route('checkout.processPayment') }}">
+        <h2>Payment via ToyyibPay</h2>
+
+        <form method="POST" action="{{ route('checkout.toyyibpayRedirect') }}">
             @csrf
+            <button type="submit">Pay Now</button>
 
-            <div class="form-group">
-                <label for="card_name">Name on Card</label>
-                <input type="text" name="card_name" placeholder="John Doe" required>
-            </div>
-
-            <div class="form-group">
-                <label for="card_number">Card Number</label>
-                <input type="text" name="card_number" placeholder="xxxx-xxxx-xxxx-xxxx" required>
-            </div>
-
-            <div class="form-group">
-                <label for="expiry">Expiry Date</label>
-                <input type="text" name="expiry" placeholder="MM/YY" required>
-            </div>
-
-            <div class="form-group">
-                <label for="cvv">CVV</label>
-                <input type="text" name="cvv" placeholder="123" required>
-            </div>
-
-            <button type="submit">Complete Payment</button>
+            <!--<button id="fakePayBtn">Pay Now</button>-->
         </form>
 
         <div class="summary">
             <hr>
             <p>Subtotal: <strong>RM{{ number_format($subtotal, 2) }}</strong></p>
             <p>Shipping: <strong>RM{{ number_format($shipping_cost, 2) }}</strong></p>
-            <p class="total">Total: RM{{ number_format($total, 2) }}</p>
+            <p class="total">Total: RM{{ number_format($total, 2) }}</strong></p>
         </div>
     </div>
+    <!--<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('fakePayBtn').addEventListener('click', function() {
+            Swal.fire({
+                title: 'Pembayaran Berjaya!',
+                text: 'Terima kasih atas pembelian anda.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "{ route('checkout.toyyibpayReturn') }}";
+            });
+        });
+    </script>-->
+
 @endsection

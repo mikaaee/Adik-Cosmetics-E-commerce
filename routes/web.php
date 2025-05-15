@@ -11,10 +11,10 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Mail;
 
 /*
@@ -49,6 +49,14 @@ Route::get('/test-email', function () {
     });
     return 'Email dihantar!';
 });
+Route::get('/env-test', function () {
+    dd(env('TEST_ENV_VALUE'));
+});
+Route::get('/debugads', function () {
+    return view('debugads');
+});
+
+
 
 /*
 |-------------------------------------------------------------------------- 
@@ -84,8 +92,9 @@ Route::get('/guest/home', [UserController::class, 'guestHome'])->name('guest.hom
 Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
 Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('user.profile.edit');
 Route::post('/profile/update', [UserController::class, 'updateProfile'])->name('user.profile.update');
-Route::get('/order-history', [UserController::class, 'orderHistory'])->name('user.orderHistory');
 Route::get('/address', [UserController::class, 'address'])->name('user.address');
+Route::get('/order-history', [OrderController::class, 'userOrderHistory'])->name('order.history');
+
 
 // Route untuk paparkan produk mengikut kategori
 Route::get('/category/{categoryId}/products', [UserController::class, 'showProductsByCategory'])->name('category.products');
@@ -135,10 +144,11 @@ Route::get('/admin/api/new-orders', [OrderController::class, 'getNewOrderCount']
 Route::get('/admin/generate-dummy-orders', [OrderController::class, 'generateDummyOrders']);
 
 
-Route::prefix('admin')->name('admin.')->namespace('App\Http\Controllers\Admin')->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
     // Resource route ni akan hasilkan nama: admin.categories.index, etc.
     Route::resource('/categories', CategoryController::class);
     Route::resource('/products', ProductController::class);
+    Route::post('/store-product', [ProductController::class, 'store'])->name('store-product');
     Route::resource('/manage-orders', OrderController::class);
     Route::get('/generate-report', [ReportController::class, 'generateReport'])->name('reports.index');
     Route::get('/dashboard', [OrderController::class, 'dashboard'])->name('dashboard');
@@ -151,11 +161,9 @@ Route::prefix('admin')->group(function () {
 
     // Export PDF
     Route::get('/export-report', [ReportController::class, 'exportPdf'])->name('admin.reports.export');
+    Route::get('/export-csv', [ReportController::class, 'exportCsv'])->name('admin.reports.exportCsv');
     Route::get('/invoices', [ReportController::class, 'listInvoices'])->name('admin.invoices');
     Route::get('/invoices/download/{filename}', [ReportController::class, 'downloadInvoice'])->name('admin.invoices.download');
-
-    Route::get('/invoices', [InvoiceController::class, 'index'])->name('admin.invoices.index');
-    Route::get('/invoices/download/{filename}', [InvoiceController::class, 'download'])->name('admin.invoices.download');
 
 });
 Route::prefix('admin')->group(function () {
@@ -165,7 +173,16 @@ Route::prefix('admin')->group(function () {
     Route::delete('/ads/{id}', [AdsController::class, 'destroy'])->name('admin.ads.destroy');
 });
 
+Route::post('/checkout/toyyibpay', [CheckoutController::class, 'toyyibpayRedirect'])->name('checkout.toyyibpayRedirect');
+Route::match(['GET', 'POST'], '/checkout/toyyibpay/return', [CheckoutController::class, 'toyyibpayCallback'])->name('checkout.toyyibpayReturn');
 
+Route::get('/promotions', [UserController::class, 'promoPage'])->name('promo.page');
+
+Route::post('/chatbox/ask', [ChatController::class, 'ask'])->name('chatbox.ask');
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
 
 
 

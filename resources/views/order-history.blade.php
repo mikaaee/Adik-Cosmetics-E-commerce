@@ -1,6 +1,126 @@
 @extends('layouts.main')
 
+@section('title', 'Order History')
+
+@section('header')
+    @include('partials.header-home')
+@endsection
+
 @section('content')
-    <h1>Order History</h1>
-    <p>This is where your past orders will be displayed.</p>
+    <div class="orders-page container py-4">
+        <h2 class="mb-4">Your Order History</h2>
+
+        @if (count($orders) > 0)
+            <div class="table-wrapper">
+                <table class="order-table">
+                    <thead class="custom-thead">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Status</th>
+                            <th>Total (RM)</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($orders as $order)
+                            <tr>
+                                <td>{{ $order['id'] }}</td>
+                                <td>
+                                    @php
+                                        $statusClass = match (strtolower($order['status'])) {
+                                            'paid' => 'badge-paid',
+                                            'pending' => 'badge-pending',
+                                            'cancelled' => 'badge-cancelled',
+                                            default => 'badge-default',
+                                        };
+                                    @endphp
+                                    <span class="badge-status {{ $statusClass }}">
+                                        {{ ucfirst($order['status']) }}
+                                    </span>
+                                </td>
+                                <td>{{ number_format($order['total'], 2) }}</td>
+                                <td>{{ \Carbon\Carbon::parse($order['date'])->format('d M Y, h:i A') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <p>You have no orders yet.</p>
+        @endif
+    </div>
+
+    <style>
+        /* Wrapper for responsive scroll */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+        }
+
+        /* Table Design */
+        .order-table {
+            width: 100%;
+            max-width: 960px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-table th,
+        .order-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .custom-thead {
+            background-color: #c69c9c !important;
+            color: #000;
+        }
+
+
+        .order-table tbody tr {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s ease;
+        }
+
+        .order-table tbody tr:nth-child(even) {
+            background-color: #e9ecef;
+        }
+
+        .order-table tbody tr:hover {
+            background-color: #e2e6ea;
+        }
+
+        /* Badge styles */
+        .badge-status {
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 20px;
+            text-transform: capitalize;
+            color: #fff;
+        }
+
+        .badge-paid {
+            background-color: #28a745;
+        }
+
+        .badge-pending {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .badge-cancelled {
+            background-color: #dc3545;
+        }
+
+        .badge-default {
+            background-color: #6c757d;
+        }
+    </style>
 @endsection

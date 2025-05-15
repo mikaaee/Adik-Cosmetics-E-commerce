@@ -13,8 +13,7 @@
 
     <nav class="main-nav">
         <ul>
-            <li><a href="#">About</a></li>
-
+            <li><a href="{{ route('about') }}">About</a></li>
             <!-- Dropdown Products -->
             <li class="dropdown">
                 <a href="#">Products <i class="fa-solid fa-caret-down"></i></a>
@@ -31,11 +30,10 @@
             <li class="dropdown">
                 <a href="#"><i class="fa-solid fa-user"></i></a>
                 <ul class="dropdown-content">
-                    <li><a href="{{ route('user.profile') }}"><i class="fa-solid fa-id-card"></i> Profile</a></li>
-                    <li><a href="{{ route('user.orderHistory') }}"><i class="fa-solid fa-box-archive"></i> Order
+                    <!--<li><a href="{-- route('user.profile') }"><i class="fa-solid fa-id-card"></i> Profile</a></li>!-->
+                    <!--<li><a href="{ route('order.history') }}"><i class="fa-solid fa-box-archive"></i> Order
                             History</a></li>
-                    <li><a href="{{ route('user.address') }}"><i class="fa-solid fa-map-marker-alt"></i> Address</a>
-                    </li>
+                    </li>!-->
                     <li><a href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
                 </ul>
             </li>

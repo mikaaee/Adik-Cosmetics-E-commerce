@@ -4,42 +4,27 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
-use App\Models\Product;
-
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
-    // Tunjuk form add product (sama mcm kau buat untuk category)
+    protected $projectId;
+    protected $accessToken;
+
+    public function __construct()
+    {
+        $this->projectId = 'adikcosmetics-1518b';
+        $this->accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
+    }
+
     public function create()
     {
-        $projectId = 'adikcosmetics-1518b';
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-
-        $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/categories";
-
-        $response = Http::withToken($accessToken)->get($url);
-
-        $categories = [];
-
-        if ($response->successful()) {
-            $documents = $response->json()['documents'] ?? [];
-
-            foreach ($documents as $doc) {
-                $fields = $doc['fields'];
-
-                $categories[] = [
-                    'id' => basename($doc['name']),
-                    'category_name' => $fields['category_name']['stringValue'] ?? 'N/A',
-                ];
-            }
-        }
+        $categories = $this->fetchCategories();
 
         return view('admin.create-product', compact('categories'));
     }
 
-    // Store product GUNA REST API
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -47,27 +32,20 @@ class ProductController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'category' => 'required|string|max:255',
-            // Optional: 'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        // ➡️ Kalau nak upload image, pakai local storage, contohnya simpan dalam public/images
         $imageUrl = '';
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('images/products'), $imageName);
-
-            // URL akses image dari public folder
             $imageUrl = asset('images/products/' . $imageName);
         }
 
-        // ➡️ Firestore REST API URL
-        $projectId = 'adikcosmetics-1518b';
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
+        $isPromo = $request->has('is_promo'); // checkbox
 
-        $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products";
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/products";
 
-        // ➡️ Payload data ikut structure Firestore REST API
         $data = [
             'fields' => [
                 'name' => ['stringValue' => $validated['name']],
@@ -76,141 +54,88 @@ class ProductController extends Controller
                 'category' => ['stringValue' => $validated['category']],
                 'image_url' => ['stringValue' => $imageUrl],
                 'created_at' => ['timestampValue' => now()->toIso8601String()],
+                'is_promo' => ['booleanValue' => $isPromo],
             ]
         ];
 
-        $response = Http::withToken($accessToken)->post($url, $data);
+        $response = Http::withToken($this->accessToken)->post($url, $data);
 
-        if ($response->successful()) {
-            return redirect()->route('admin.products.create')->with('success', 'Product added successfully!');
-        } else {
-            return redirect()->back()->with('error', 'Failed to add product: ' . $response->body());
-        }
+        Cache::forget('all_products'); // refresh cache
+        return $response->successful()
+            ? redirect()->route('admin.products.index')->with('success', 'Product added successfully!')
+            : redirect()->back()->with('error', 'Failed to add product.');
     }
 
-    // List all products (untuk All Product page & Sidebar)
     public function index(Request $request)
     {
-        $projectId = 'adikcosmetics-1518b';
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-
-        // Get categories
-        $urlCategories = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/categories";
-        $responseCategories = Http::withToken($accessToken)->get($urlCategories);
-
-        $categories = [];
-
-        if ($responseCategories->successful()) {
-            $documents = $responseCategories->json()['documents'] ?? [];
-
-            foreach ($documents as $doc) {
-                $fields = $doc['fields'];
-
-                $categories[] = [
-                    'id' => basename($doc['name']),
-                    'category_name' => $fields['category_name']['stringValue'] ?? '',
-                ];
-            }
-        }
-
         $search = $request->input('search');
         $filterCategory = $request->input('category');
-        $products = [];
+        $filterPromo = $request->input('promo'); // "true" atau "false"
 
-        $urlProducts = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products";
-        $responseProducts = Http::withToken($accessToken)->get($urlProducts);
 
-        if ($responseProducts->successful()) {
-            $documents = $responseProducts->json()['documents'] ?? [];
+        $categories = $this->fetchCategories();
 
-            foreach ($documents as $doc) {
-                $fields = $doc['fields'];
+        $products = Cache::remember('all_products', now()->addMinutes(5), function () {
+            $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/products";
+            $response = Http::withToken($this->accessToken)->get($url);
 
-                $product = [
-                    'id' => basename($doc['name']),
-                    'name' => $fields['name']['stringValue'] ?? '',
-                    'description' => $fields['description']['stringValue'] ?? '',
-                    'price' => $fields['price']['doubleValue'] ?? 0,
-                    'category' => $fields['category']['stringValue'] ?? '',
-                    'image_url' => $fields['image_url']['stringValue'] ?? '',
-                ];
+            $items = [];
+            if ($response->successful()) {
+                foreach ($response->json()['documents'] ?? [] as $doc) {
+                    $fields = $doc['fields'];
 
-                // Apply filter
-                $matchSearch = !$search || stripos($product['name'], $search) !== false;
-                $matchCategory = !$filterCategory || $product['category'] == $filterCategory;
-
-                if ($matchSearch && $matchCategory) {
-                    $products[] = $product;
+                    $items[] = [
+                        'id' => basename($doc['name']),
+                        'name' => $fields['name']['stringValue'] ?? '',
+                        'description' => $fields['description']['stringValue'] ?? '',
+                        'price' => $fields['price']['doubleValue'] ?? 0,
+                        'category' => $fields['category']['stringValue'] ?? '',
+                        'image_url' => $fields['image_url']['stringValue'] ?? '',
+                        'is_promo' => $fields['is_promo']['booleanValue'] ?? false,
+                    ];
                 }
             }
-        }
+            return $items;
+        });
+
+        // Filter in PHP side (no extra read)
+        $products = array_filter($products, function ($product) use ($search, $filterCategory, $filterPromo) {
+            return (!$search || stripos($product['name'], $search) !== false) &&
+                   (!$filterCategory || $product['category'] == $filterCategory) &&
+                   (
+                       !$filterPromo ||
+                       ($filterPromo == 'true' && ($product['is_promo'] ?? false)) ||
+                       ($filterPromo == 'false' && !($product['is_promo'] ?? false))
+                   );
+        });
+        
 
         return view('admin.manage-products', compact('products', 'categories'));
     }
 
     public function edit($id)
     {
-        $projectId = 'adikcosmetics-1518b';
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/products/{$id}";
+        $response = Http::withToken($this->accessToken)->get($url);
 
-        // Fetch product detail by ID
-        $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products/{$id}";
-
-        $response = \Illuminate\Support\Facades\Http::withToken($accessToken)->get($url);
-
-        if (!$response->successful()) {
-            return redirect()->back()->with('error', 'Failed to retrieve product.');
-        }
-
-        $doc = $response->json();
-
-        // Pastikan data wujud
-        if (!isset($doc['fields'])) {
+        if (!$response->successful() || !isset($response->json()['fields'])) {
             return redirect()->back()->with('error', 'Product not found.');
         }
 
-        // Convert Firestore format → array biasa
+        $fields = $response->json()['fields'];
         $product = [
             'id' => $id,
-            'name' => $doc['fields']['name']['stringValue'] ?? '',
-            'description' => $doc['fields']['description']['stringValue'] ?? '',
-            'price' => $doc['fields']['price']['doubleValue'] ?? 0,
-            'category' => $doc['fields']['category']['stringValue'] ?? '',
-            'image_url' => $doc['fields']['image_url']['stringValue'] ?? '',
+            'name' => $fields['name']['stringValue'] ?? '',
+            'description' => $fields['description']['stringValue'] ?? '',
+            'price' => $fields['price']['doubleValue'] ?? 0,
+            'category' => $fields['category']['stringValue'] ?? '',
+            'image_url' => $fields['image_url']['stringValue'] ?? '',
+            'is_promo' => $fields['is_promo']['booleanValue'] ?? false,
         ];
 
-        // Ambil categories juga kalau nak letak dalam dropdown
-        $categories = $this->fetchCategories(); // boleh guna function dari create()
+        $categories = $this->fetchCategories();
 
         return view('admin.edit-product', compact('product', 'categories'));
-    }
-
-    // Helper untuk ambil categories (boleh asing ke tempat lain)
-    private function fetchCategories()
-    {
-        $projectId = 'adikcosmetics-1518b';
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-
-        $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/categories";
-
-        $response = \Illuminate\Support\Facades\Http::withToken($accessToken)->get($url);
-
-        $categories = [];
-
-        if ($response->successful()) {
-            $documents = $response->json()['documents'] ?? [];
-
-            foreach ($documents as $doc) {
-                $fields = $doc['fields'];
-
-                $categories[] = [
-                    'id' => basename($doc['name']),
-                    'category_name' => $fields['category_name']['stringValue'] ?? 'N/A',
-                ];
-            }
-        }
-
-        return $categories;
     }
 
     public function update(Request $request, $id)
@@ -222,32 +147,33 @@ class ProductController extends Controller
             'category' => 'required|string|max:255',
         ]);
 
-        $projectId = 'adikcosmetics-1518b';
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-
-        // Fetch current product untuk dapatkan existing image URL
-        $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products/{$id}";
-
-        $response = Http::withToken($accessToken)->get($url);
+        $getUrl = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/products/{$id}";
+        $response = Http::withToken($this->accessToken)->get($getUrl);
 
         if (!$response->successful()) {
             return redirect()->back()->with('error', 'Product not found.');
         }
 
-        $currentProduct = $response->json();
-        $currentImageUrl = $currentProduct['fields']['image_url']['stringValue'] ?? '';
-
-        // Handle image upload kalau ada gambar baru
+        $currentImageUrl = $response->json()['fields']['image_url']['stringValue'] ?? '';
         $imageUrl = $currentImageUrl;
+
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('images/products'), $imageName);
-
             $imageUrl = asset('images/products/' . $imageName);
         }
 
-        // Prepare data untuk update (Firestore pakai PATCH)
+        $isPromo = $request->has('is_promo');
+
+        $updateUrl = "{$getUrl}?updateMask.fieldPaths=name"
+            . "&updateMask.fieldPaths=description"
+            . "&updateMask.fieldPaths=price"
+            . "&updateMask.fieldPaths=category"
+            . "&updateMask.fieldPaths=image_url"
+            . "&updateMask.fieldPaths=updated_at"
+            . "&updateMask.fieldPaths=is_promo";
+
         $data = [
             'fields' => [
                 'name' => ['stringValue' => $validated['name']],
@@ -256,137 +182,98 @@ class ProductController extends Controller
                 'category' => ['stringValue' => $validated['category']],
                 'image_url' => ['stringValue' => $imageUrl],
                 'updated_at' => ['timestampValue' => now()->toIso8601String()],
+                'is_promo' => ['booleanValue' => $isPromo],
             ]
         ];
 
-        $updateUrl = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products/{$id}?updateMask.fieldPaths=name&updateMask.fieldPaths=description&updateMask.fieldPaths=price&updateMask.fieldPaths=category&updateMask.fieldPaths=image_url&updateMask.fieldPaths=updated_at";
+        $updateResponse = Http::withToken($this->accessToken)->patch($updateUrl, $data);
 
-        $updateResponse = Http::withToken($accessToken)->patch($updateUrl, $data);
+        Cache::forget('all_products');
 
-        if ($updateResponse->successful()) {
-            return redirect()->route('admin.products')->with('success', 'Product updated successfully!');
-        } else {
-            return redirect()->back()->with('error', 'Failed to update product.');
-        }
+        return $updateResponse->successful()
+            ? redirect()->route('admin.products.index')->with('success', 'Product updated successfully!')
+            : redirect()->back()->with('error', 'Failed to update product.');
     }
 
 
     public function destroy($id)
     {
-        try {
-            $projectId = 'adikcosmetics-1518b';
-            $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/products/{$id}";
+        $response = Http::withToken($this->accessToken)->delete($url);
 
-            // URL untuk delete specific product
-            $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/products/{$id}";
+        Cache::forget('all_products');
 
-            // DELETE request ke Firestore
-            $response = Http::withToken($accessToken)->delete($url);
-
-            if ($response->successful()) {
-                return redirect()->route('admin.products')->with('success', 'Product deleted successfully!');
-            } else {
-                return redirect()->route('admin.products')->with('error', 'Failed to delete product!');
-            }
-        } catch (\Exception $e) {
-            return redirect()->route('admin.products.index')->with('error', 'Error deleting product: ' . $e->getMessage());
-        }
+        return $response->successful()
+            ? redirect()->route('admin.products')->with('success', 'Product deleted successfully!')
+            : redirect()->route('admin.products')->with('error', 'Failed to delete product!');
     }
+
+    private function fetchCategories()
+    {
+        return Cache::remember('all_categories', now()->addMinutes(10), function () {
+            $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/categories";
+            $response = Http::withToken($this->accessToken)->get($url);
+
+            $categories = [];
+            if ($response->successful()) {
+                foreach ($response->json()['documents'] ?? [] as $doc) {
+                    $fields = $doc['fields'];
+                    $categories[] = [
+                        'id' => basename($doc['name']),
+                        'category_name' => $fields['category_name']['stringValue'] ?? 'N/A',
+                    ];
+                }
+            }
+
+            return $categories;
+        });
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        $products = Cache::remember('all_products', now()->addMinutes(5), function () {
+            $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/products";
+            $response = Http::withToken($this->accessToken)->get($url);
+
+            $items = [];
+            if ($response->successful()) {
+                foreach ($response->json()['documents'] ?? [] as $doc) {
+                    $fields = $doc['fields'];
+                    $items[] = [
+                        'name' => $fields['name']['stringValue'] ?? '',
+                        'price' => $fields['price']['doubleValue'] ?? 0,
+                        'image_url' => $fields['image_url']['stringValue'] ?? '',
+                    ];
+                }
+            }
+            return $items;
+        });
+
+        $filtered = array_filter($products, function ($product) use ($query) {
+            return stripos($product['name'], $query) !== false;
+        });
+
+        return view('search-results', ['products' => $filtered]);
+    }
+
+    public function showByCategory($category)
+    {
+        $products = Cache::remember("category_{$category}_products", now()->addMinutes(5), function () {
+            $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/products";
+            $response = Http::withToken($this->accessToken)->get($url);
+            return $response->json()['documents'] ?? [];
+        });
+
+        $filtered = array_filter($products, function ($doc) use ($category) {
+            return ($doc['fields']['category']['stringValue'] ?? '') === $category;
+        });
+
+        return view('products.index', ['products' => $filtered]);
+    }
+
     public function show($id)
     {
         return redirect()->route('admin.products.index')->with('info', 'Show product not implemented yet.');
     }
-
-    public function featuredProducts()
-    {
-        // Firestore project info
-        $projectId = 'adikcosmetics-1518b';
-        $apiKey = 'AIzaSyD2Y2szwDstqTmVRHJSvVBXb25Ci3KtX6Y';  // Gantikan dengan API key yang betul
-
-        // Endpoint untuk dapatkan produk
-        $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/products";
-
-        // Query untuk cari produk dengan is_featured = true
-        $response = Http::get($url, [
-            'where' => [
-                'field' => [
-                    'fieldPath' => 'is_featured',
-                    'value' => [
-                        'booleanValue' => true,
-                    ],
-                ],
-            ],
-        ]);
-        // Debug respons API Firestore
-        dd($response->json());  // Debug respons API Firestore
-
-
-
-
-        // Parse response untuk ambil data produk
-        $products = $response->json()['documents'] ?? [];
-
-        // Mapkan response ke dalam format yang sesuai untuk view
-        $products = array_map(function ($product) {
-            return [
-                'id' => $product['name'],
-                'name' => $product['fields']['name']['stringValue'] ?? '',
-                'price' => $product['fields']['price']['doubleValue'] ?? 0,
-                'image_url' => $product['fields']['image_url']['stringValue'] ?? '',
-            ];
-        }, $products);
-        // Debugkan data produk
-        dd($products);
-
-        return view('partials.feature-products', compact('products'));
-    }
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-
-        // Endpoint Firestore untuk dapatkan semua dokumen dari koleksi 'products'
-        $url = 'https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/products';
-
-        $response = Http::get($url);
-
-        $filteredProducts = [];
-
-        if ($response->successful()) {
-            $documents = $response->json()['documents'] ?? [];
-
-            foreach ($documents as $doc) {
-                $fields = $doc['fields'];
-
-                $product = [
-                    'name' => $fields['name']['stringValue'] ?? '',
-                    'price' => $fields['price']['doubleValue'] ?? 0,
-                    'image_url' => $fields['image_url']['stringValue'] ?? ''
-                ];
-
-                // Cari produk ikut nama (case-insensitive)
-                if (stripos($product['name'], $query) !== false) {
-                    $filteredProducts[] = $product;
-                }
-            }
-        }
-
-        // Return view untuk paparkan hasil carian
-        return view('search-results', ['products' => $filteredProducts]);
-    }
-    public function showByCategory($category)
-    {
-        // Ambil produk berdasarkan kategori
-        $response = Http::get('https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/products', [
-            'filter' => [
-                'field' => 'category',
-                'op' => '==',
-                'value' => $category,
-            ]
-        ]);
-
-        $products = json_decode($response->body(), true)['documents'] ?? [];
-
-        return view('products.index', compact('products'));
-    }
 }
-

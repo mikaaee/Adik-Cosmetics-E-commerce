@@ -12,13 +12,11 @@ class OrderConfirmationMail extends Mailable
 
     public $orderData;
     public $userEmail;
-    public $pdfPath;
 
-    public function __construct($orderData, $userEmail, $pdfPath)
+    public function __construct($orderData, $userEmail)
     {
         $this->orderData = $orderData;
         $this->userEmail = $userEmail;
-        $this->pdfPath = $pdfPath;
     }
 
     public function build()
@@ -28,10 +26,6 @@ class OrderConfirmationMail extends Mailable
                     ->with([
                         'orderData' => $this->orderData,
                         'userEmail' => $this->userEmail,
-                    ])
-                    ->attach($this->pdfPath, [
-                        'as' => 'invoice_' . $this->orderData['invoice_no'] . '.pdf',
-                        'mime' => 'application/pdf',
                     ]);
     }
 }

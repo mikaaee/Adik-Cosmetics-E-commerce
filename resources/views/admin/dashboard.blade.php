@@ -3,28 +3,32 @@
 @section('content')
     <div class="dashboard container">
         <h1 class="page-title">Dashboard</h1>
-        <div style="max-width: 600px; margin: 40px auto;">
-            <h3 style="text-align:center">Order Status (Pie Chart)</h3>
-            <canvas id="orderStatusChart"></canvas>
-        </div>
-
-        <div style="max-width: 700px; margin: 40px auto;">
-            <h3 style="text-align:center">Daily Orders (Last 7 Days)</h3>
-            <canvas id="dailyOrderChart"></canvas>
-        </div>
-
 
         <div class="dashboard-stats">
+            {{-- Charts Row --}}
+            <div class="stat-row">
+                <div class="stat-card chart-card">
+                    <h3 style="text-align:center; margin-bottom: 10px;">Order Status</h3>
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+                <div class="stat-card chart-card">
+                    <h3 style="text-align:center; margin-bottom: 10px;">Daily Orders</h3>
+                    <canvas id="dailyOrderChart"></canvas>
+                </div>
+            </div>
+
+            {{-- Statistics Row --}}
             <div class="stat-row">
                 <div class="stat-card">
                     <h3>Total Sales</h3>
-                    <p>${{ number_format($totalSales, 2) }}</p>
+                    <p>RM{{ number_format($totalSales, 2) }}</p>
                 </div>
                 <div class="stat-card">
                     <h3>Total Customers</h3>
                     <p>{{ $totalCustomers }}</p>
                 </div>
             </div>
+
             <div class="stat-row">
                 <div class="stat-card">
                     <h3>Total Orders</h3>
@@ -32,8 +36,6 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 
     <style>
@@ -46,20 +48,18 @@
 
         .dashboard {
             display: block;
-            /* Pastikan layout dalam dashboard vertical */
             width: 100%;
         }
 
-
         .dashboard-stats {
             display: block;
-            /* ruang antara kad */
             margin-bottom: 30px;
         }
 
         .stat-row {
             display: flex;
             justify-content: left;
+            flex-wrap: wrap;
             gap: 20px;
             margin-bottom: 20px;
         }
@@ -76,7 +76,17 @@
             flex-direction: column;
             justify-content: center;
         }
+
+        .chart-card {
+            height: 280px;
+        }
+
+        .chart-card canvas {
+            max-width: 100%;
+            height: 180px;
+        }
     </style>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -93,7 +103,7 @@
                 }
             });
 
-            // Bar Chart - Last 7 days
+            // Bar Chart - Last 7 Days
             const barCtx = document.getElementById('dailyOrderChart').getContext('2d');
             new Chart(barCtx, {
                 type: 'bar',
@@ -104,6 +114,17 @@
                         data: {!! json_encode($ordersPerDay ?? []) !!},
                         backgroundColor: '#007bff'
                     }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
                 }
             });
         });

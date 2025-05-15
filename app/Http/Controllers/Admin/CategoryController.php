@@ -37,7 +37,7 @@ class CategoryController extends Controller
         ]);
 
         if ($response->successful()) {
-            return redirect()->route('admin.categories')->with('success', 'Category added successfully!');
+            return redirect()->route('admin.categories.index')->with('success', 'Category added successfully!');
         } else {
             return redirect()->back()->with('error', 'Failed to add category.');
         }

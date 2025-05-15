@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -43,23 +43,51 @@ class AdsController extends Controller
     {
         $request->validate([
             'title' => 'required|string',
-            'image_url' => 'required|url',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image_url' => 'nullable|url',
         ]);
 
-        $accessToken = FirebaseHelper::getAccessToken();
+        $imageUrl = '';
+
+        if ($request->hasFile('image_file')) {
+            $image = $request->file('image_file');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+
+            $adsFolder = public_path('images/ads');
+            if (!file_exists($adsFolder)) {
+                mkdir($adsFolder, 0755, true);
+            }
+
+            $image->move($adsFolder, $imageName);
+            $imageUrl = url('images/ads/' . $imageName);
+        } elseif ($request->filled('image_url')) {
+            $imageUrl = $request->image_url;
+        }
+
+        if (empty($imageUrl)) {
+            return back()->with('error', 'Please upload an image or provide an image URL.');
+        }
+
+        // Firestore API
+        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
         $url = "https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/ads";
 
         $payload = [
             'fields' => [
                 'title' => ['stringValue' => $request->title],
-                'image_url' => ['stringValue' => $request->image_url],
+                'image_url' => ['stringValue' => $imageUrl],
             ]
         ];
 
-        Http::withToken($accessToken)->post($url, $payload);
+        $response = Http::withToken($accessToken)->post($url, $payload);
 
-        return redirect()->route('admin.ads.index')->with('success', 'Ad added!');
+        if ($response->successful()) {
+            return redirect()->route('admin.ads.index')->with('success', 'Ad successfully created!');
+        } else {
+            return back()->with('error', 'Failed to save ad: ' . $response->body());
+        }
     }
+
 
     public function destroy($id)
     {

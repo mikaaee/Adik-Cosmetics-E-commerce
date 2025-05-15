@@ -25,11 +25,9 @@
 
 
     <main>
-        @if (Request::is('/') || Request::is('home'))
-            {{-- Shared Hero Section --}}
-            @include('partials.hero')
-            {{-- Shared Featured Products --}}
-        @endif
+        {{-- Shared Hero Section (Letak dari child view if needed) --}}
+        @yield('hero')
+
 
 
         {{-- Page Content --}}
@@ -39,7 +37,7 @@
     <footer>
         <p>&copy; 2025 ADIK COSMETICS. All rights reserved.</p>
     </footer>
-
+    @yield('scripts')
 </body>
 
 </html>

@@ -59,11 +59,6 @@
                     <span>Report</span>
                 </li>
 
-                <li onclick="location.href='{{ route('admin.invoices.index') }}'">
-                    <i class="fas fa-file-invoice-dollar"></i> 
-                    <span>Invoices</span>
-                </li>
-
                 <li onclick="location.href='{{ route('admin.ads.index') }}'">
                     <i class="fas fa-bullhorn"></i> 
                     <span>Manage Ads</span>

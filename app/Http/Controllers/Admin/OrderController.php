@@ -3,41 +3,42 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order; // Pastikan model Order digunakan
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class OrderController extends Controller
 {
+    protected $projectId;
+    protected $accessToken;
+
+    public function __construct()
+    {
+        $this->projectId = env('FIREBASE_PROJECT_ID', 'adikcosmetics-1518b');
+        $this->accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
+    }
 
     public function index(Request $request)
     {
-        $projectId = 'adikcosmetics-1518b';
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-        $statusFilter = $request->input('status'); // Dapatkan query parameter
+        $statusFilter = $request->input('status');
+        $orders = Cache::remember("orders_all", now()->addMinutes(5), function () {
+            $response = Http::withToken($this->accessToken)->get(
+                "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/orders"
+            );
 
-        $response = Http::withToken($accessToken)
-            ->get("https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/orders");
+            if (!$response->successful()) return [];
 
-        $orders = [];
-
-        if ($response->successful()) {
             $documents = $response->json()['documents'] ?? [];
+            $results = [];
 
             foreach ($documents as $doc) {
-                $fields = $doc['fields'];
-                $status = $fields['status']['stringValue'] ?? '';
+                $fields = $doc['fields'] ?? [];
 
-                // ✅ Apply filter kalau ada statusFilter
-                if ($statusFilter && strtolower($status) !== strtolower($statusFilter)) {
-                    continue;
-                }
-
-                $orders[] = [
+                $results[] = [
                     'id' => basename($doc['name']),
                     'user_id' => $fields['user_id']['stringValue'] ?? '',
-                    'status' => $status,
+                    'status' => $fields['status']['stringValue'] ?? '',
                     'shipping' => $fields['shipping']['stringValue'] ?? '',
                     'return_status' => $fields['return_status']['stringValue'] ?? '',
                     'total' => $fields['total']['doubleValue'] ?? 0.00,
@@ -45,44 +46,25 @@ class OrderController extends Controller
                     'product' => $fields['items']['arrayValue']['values'][0]['mapValue']['fields']['name']['stringValue'] ?? 'Multiple Items',
                 ];
             }
+
+            return $results;
+        });
+
+        // Filter jika perlu
+        if ($statusFilter) {
+            $orders = array_filter($orders, function ($order) use ($statusFilter) {
+                return strtolower($order['status']) === strtolower($statusFilter);
+            });
         }
 
         return view('admin.manage-orders', compact('orders', 'statusFilter'));
     }
 
-
-    public function showOrders()
-    {
-        $response = Http::get("https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/orders");
-        $documents = $response->json()['documents'] ?? [];
-
-        $orders = [];
-
-        foreach ($documents as $doc) {
-            $fields = $doc['fields'];
-
-            $orders[] = [
-                'id' => basename($doc['name']),
-                'customer_name' => $fields['customer_name']['stringValue'] ?? '',
-                'product_name' => $fields['items']['arrayValue']['values'][0]['mapValue']['fields']['name']['stringValue'] ?? 'Multiple Items',
-                'status' => $fields['status']['stringValue'] ?? '',
-                'shipping' => $fields['shipping']['stringValue'] ?? '',
-                'return_status' => $fields['return_status']['stringValue'] ?? '',
-            ];
-        }
-
-        return view('admin.manage-orders', compact('orders'));
-    }
-
-
-
     public function store(Request $request)
     {
-        $projectId = env('FIREBASE_PROJECT_ID');
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/orders";
 
-        $firestoreUrl = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/orders";
-
-        $response = Http::post($firestoreUrl, [
+        $response = Http::post($url, [
             'fields' => [
                 'customer_name' => ['stringValue' => $request->customer_name],
                 'product_name' => ['stringValue' => $request->product_name],
@@ -94,32 +76,26 @@ class OrderController extends Controller
             ]
         ]);
 
-        if ($response->successful()) {
-            return response()->json(['message' => 'Order placed successfully.']);
-        } else {
-            return response()->json(['error' => 'Failed to place order.'], 500);
-        }
+        return $response->successful()
+            ? response()->json(['message' => 'Order placed successfully.'])
+            : response()->json(['error' => 'Failed to place order.'], 500);
     }
-
 
     public function updateStatus(Request $request, $id)
     {
-        $firestoreUrl = "https://firestore.googleapis.com/v1/projects/YOUR_PROJECT_ID/databases/(default)/documents/orders/$id?updateMask.fieldPaths=status";
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/orders/{$id}?updateMask.fieldPaths=status";
 
         $status = $request->input('status');
 
-        $response = Http::patch($firestoreUrl, [
-            'fields' => [
-                'status' => ['stringValue' => $status]
-            ]
+        $response = Http::patch($url, [
+            'fields' => ['status' => ['stringValue' => $status]]
         ]);
 
-        if ($response->ok()) {
-            return redirect()->back()->with('success', 'Order status updated.');
-        }
-
-        return redirect()->back()->with('error', 'Failed to update order status.');
+        return $response->ok()
+            ? redirect()->back()->with('success', 'Order status updated.')
+            : redirect()->back()->with('error', 'Failed to update order status.');
     }
+
     public function update(Request $request, $id)
     {
         $data = [];
@@ -136,186 +112,136 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'No updates provided.');
         }
 
-        $projectId = env('FIREBASE_PROJECT_ID');
-        $firestoreUrl = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/orders/{$id}";
-
-        $response = Http::patch($firestoreUrl, ['fields' => $data]);
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/orders/{$id}";
+        $response = Http::patch($url, ['fields' => $data]);
 
         return $response->successful()
             ? redirect()->back()->with('success', 'Order updated successfully!')
             : redirect()->back()->with('error', 'Failed to update order.');
     }
+
     public function dashboard()
     {
+        $res = Cache::remember('orders_dashboard', now()->addMinutes(3), function () {
+            return Http::withToken($this->accessToken)
+                ->get("https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/orders")
+                ->json();
+        });
+
+        $orders = $res['documents'] ?? [];
         $totalSales = 0;
         $totalOrders = 0;
-        $totalCustomers = 0;
         $paidOrders = 0;
         $pendingOrders = 0;
-        $last7Days = [];
         $ordersPerDay = [];
 
-        $projectId = env('FIREBASE_PROJECT_ID');
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
+        $last7Days = collect(range(0, 6))->map(function ($i) {
+            return now()->subDays($i)->format('Y-m-d');
+        })->reverse()->values()->toArray();
 
-        $resOrders = Http::withToken($accessToken)->get("https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/orders");
-
-        if ($resOrders->successful()) {
-            $documents = $resOrders->json()['documents'] ?? [];
-
-            // Init for 7 days chart
-            for ($i = 6; $i >= 0; $i--) {
-                $day = now()->subDays($i)->format('Y-m-d');
-                $last7Days[] = $day;
-                $ordersPerDay[$day] = 0;
-            }
-
-            foreach ($documents as $doc) {
-                $fields = $doc['fields'];
-                $total = (float) ($fields['total']['doubleValue'] ?? 0);
-                $status = $fields['status']['stringValue'] ?? '';
-                $createdAt = $fields['created_at']['timestampValue'] ?? '';
-
-                $totalSales += $total;
-                $totalOrders++;
-
-                if (strtolower($status) === 'paid') {
-                    $paidOrders++;
-                } elseif (strtolower($status) === 'pending') {
-                    $pendingOrders++;
-                }
-
-                $date = Carbon::parse($createdAt)->format('Y-m-d');
-                if (isset($ordersPerDay[$date])) {
-                    $ordersPerDay[$date]++;
-                }
-            }
+        foreach ($last7Days as $day) {
+            $ordersPerDay[$day] = 0;
         }
 
-        // Convert ke array untuk Chart.js
+        foreach ($orders as $doc) {
+            $fields = $doc['fields'] ?? [];
+            $total = (float) ($fields['total']['doubleValue'] ?? 0);
+            $status = strtolower($fields['status']['stringValue'] ?? '');
+            $createdAt = $fields['created_at']['timestampValue'] ?? '';
+            $date = Carbon::parse($createdAt)->format('Y-m-d');
+
+            $totalSales += $total;
+            $totalOrders++;
+            if ($status === 'paid') $paidOrders++;
+            if ($status === 'pending') $pendingOrders++;
+            if (isset($ordersPerDay[$date])) $ordersPerDay[$date]++;
+        }
+
+        // Users
+        $resUsers = Cache::remember('users_dashboard', now()->addMinutes(3), function () {
+            return Http::withToken($this->accessToken)
+                ->get("https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/users")
+                ->json();
+        });
+
+        $totalCustomers = count($resUsers['documents'] ?? []);
         $ordersPerDay = array_values($ordersPerDay);
 
-        // Customers
-        $resUsers = Http::withToken($accessToken)->get("https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/users");
-        if ($resUsers->successful()) {
-            $totalCustomers = count($resUsers->json()['documents'] ?? []);
-        }
-
-        return view('admin.dashboard', [
-            'totalSales' => $totalSales,
-            'totalOrders' => $totalOrders,
-            'totalCustomers' => $totalCustomers,
-            'paidOrders' => $paidOrders,
-            'pendingOrders' => $pendingOrders,
-            'last7Days' => $last7Days,
-            'ordersPerDay' => $ordersPerDay,
-        ]);
+        return view('admin.dashboard', compact(
+            'totalSales', 'totalOrders', 'totalCustomers',
+            'paidOrders', 'pendingOrders', 'last7Days', 'ordersPerDay'
+        ));
     }
 
     public function dashboardStats()
     {
-        $totalSales = 0;
-        $totalOrders = 0;
-        $totalCustomers = 0;
+        $stats = Cache::remember('dashboard_stats', now()->addMinutes(3), function () {
+            $resOrders = Http::withToken($this->accessToken)
+                ->get("https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/orders");
 
-        $projectId = env('FIREBASE_PROJECT_ID');
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
+            $resUsers = Http::withToken($this->accessToken)
+                ->get("https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/users");
 
-        // Orders
-        $resOrders = Http::withToken($accessToken)->get("https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/orders");
-        if ($resOrders->successful()) {
+            $totalSales = 0;
+            $totalOrders = 0;
+
             foreach ($resOrders['documents'] ?? [] as $doc) {
                 $fields = $doc['fields'] ?? [];
                 $totalSales += (float) ($fields['total']['doubleValue'] ?? 0);
                 $totalOrders++;
             }
-        }
 
-        // Users
-        $resUsers = Http::withToken($accessToken)->get("https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/users");
-        if ($resUsers->successful()) {
             $totalCustomers = count($resUsers['documents'] ?? []);
-        }
 
-        return response()->json([
-            'totalSales' => $totalSales,
-            'totalOrders' => $totalOrders,
-            'totalCustomers' => $totalCustomers,
-        ]);
+            return compact('totalSales', 'totalOrders', 'totalCustomers');
+        });
+
+        return response()->json($stats);
     }
 
     public function getNewOrderCount()
     {
-        $projectId = env('FIREBASE_PROJECT_ID');
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
+        $count = Cache::remember('paid_order_count', now()->addMinutes(3), function () {
+            $response = Http::withToken($this->accessToken)
+                ->get("https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/orders");
 
-        $url = "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/orders";
-
-        $response = Http::withToken($accessToken)->get($url);
-
-        $count = 0;
-
-        if ($response->successful()) {
-            $documents = $response->json()['documents'] ?? [];
-            foreach ($documents as $doc) {
-                $fields = $doc['fields'] ?? [];
-                if (($fields['status']['stringValue'] ?? '') === 'Paid') {
-                    $count++;
-                }
+            $count = 0;
+            foreach ($response->json()['documents'] ?? [] as $doc) {
+                $status = $doc['fields']['status']['stringValue'] ?? '';
+                if ($status === 'Paid') $count++;
             }
-        }
+            return $count;
+        });
 
         return response()->json(['count' => $count]);
     }
-    public function generateDummyOrders()
+
+    public function userOrderHistory()
     {
-        $projectId = env('FIREBASE_PROJECT_ID');
-        $accessToken = \App\Helpers\FirebaseHelper::getAccessToken();
-
-        for ($i = 0; $i < 10; $i++) {
-            $daysAgo = rand(0, 6); // tarikh antara hari ini dan 6 hari lepas
-            $status = rand(0, 1) ? 'Paid' : 'Pending';
-
-            $payload = [
-                'fields' => [
-                    'user_id' => ['stringValue' => 'dummy_user_' . rand(1, 5)],
-                    'status' => ['stringValue' => $status],
-                    'shipping' => ['stringValue' => 'Pending'],
-                    'return_status' => ['stringValue' => 'None'],
-                    'total' => ['doubleValue' => rand(20, 200)],
-                    'created_at' => ['timestampValue' => now()->subDays($daysAgo)->toIso8601String()],
-                    'items' => [
-                        'arrayValue' => [
-                            'values' => [
-                                [
-                                    'mapValue' => [
-                                        'fields' => [
-                                            'name' => ['stringValue' => 'Dummy Product ' . rand(1, 5)],
-                                            'quantity' => ['integerValue' => rand(1, 3)],
-                                            'price' => ['doubleValue' => rand(10, 100)],
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ],
-                ]
-            ];
-
-            $response = Http::withToken($accessToken)->post(
-                "https://firestore.googleapis.com/v1/projects/{$projectId}/databases/(default)/documents/orders",
-                $payload
-            );
-
-            if ($response->failed()) {
-                \Log::error('❌ Dummy order gagal:', ['body' => $response->body()]);
-            }
+        $userId = session('user_data')['uid'] ?? null;
+        if (!$userId) {
+            return redirect()->route('login.form')->with('error', 'Please login first.');
         }
 
-        return redirect()->back()->with('success', 'Dummy orders berjaya dijana!');
+        $orders = Cache::remember("orders_user_$userId", now()->addMinutes(5), function () use ($userId) {
+            $response = Http::withToken($this->accessToken)
+                ->get("https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/orders");
+
+            $orders = [];
+            foreach ($response->json()['documents'] ?? [] as $doc) {
+                $fields = $doc['fields'];
+                if (($fields['user_id']['stringValue'] ?? '') === $userId) {
+                    $orders[] = [
+                        'id' => basename($doc['name']),
+                        'status' => $fields['status']['stringValue'] ?? '',
+                        'total' => $fields['total']['doubleValue'] ?? '',
+                        'date' => $fields['created_at']['timestampValue'] ?? '',
+                    ];
+                }
+            }
+            return $orders;
+        });
+
+        return view('order-history', compact('orders'));
     }
-
-
-
-
 }

@@ -23,6 +23,7 @@ class UserController extends Controller
         $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/ads?key={$this->apiKey}";
 
         $response = Http::get($url);
+        logger()->info('Firestore ADS response:', ['body' => $response->json()]); // 👈 Tambah ni
 
         if ($response->successful()) {
             $documents = $response->json()['documents'] ?? [];
@@ -43,6 +44,7 @@ class UserController extends Controller
     {
         $categories = $this->getCategoriesFromFirestore();
         $ads = $this->getAdsFromFirestore();
+        //@dd($ads);
         return view('dashboard.home', compact('categories', 'ads'));
     }
 
@@ -239,18 +241,52 @@ class UserController extends Controller
             return redirect()->route('products.all')->with('error', 'Product not found.');
         }
     }
-
-
-
-
-
     public function orderHistory()
     {
         return view('order-history');
     }
-
     public function address()
     {
         return view('address');
     }
+    private function getPromoProducts()
+    {
+        $collection = 'products';
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collection}?key={$this->apiKey}";
+
+        $response = Http::get($url);
+        $promoProducts = [];
+
+        if ($response->successful()) {
+            $documents = $response->json()['documents'] ?? [];
+
+            foreach ($documents as $doc) {
+                $fields = $doc['fields'] ?? [];
+
+                $isPromo = $fields['is_promo']['booleanValue'] ?? false;
+
+                if ($isPromo) {
+                    $promoProducts[] = [
+                        'id' => basename($doc['name']),
+                        'name' => $fields['name']['stringValue'] ?? 'No Name',
+                        'price' => $fields['price']['doubleValue'] ?? ($fields['price']['integerValue'] ?? 0),
+                        'image_url' => $fields['image_url']['stringValue'] ?? '',
+                        'description' => $fields['description']['stringValue'] ?? '',
+                        'category' => $fields['category']['stringValue'] ?? 'Uncategorized', 
+                    ];
+                }
+            }
+        }
+
+        return $promoProducts;
+    }
+    public function promoPage()
+    {
+        $categories = $this->getCategoriesFromFirestore();
+        $products = $this->getPromoProducts();
+
+        return view('promotions', compact('categories', 'products'));
+    }
+
+
 }

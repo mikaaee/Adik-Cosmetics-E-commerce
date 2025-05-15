@@ -29,7 +29,7 @@
             </div> -->
 
             <!-- Submit -->
-            <button type="submit" class="btn-submit">Add Category</button>
+            <button type="submit" class="btn-submit">Add</button>
         </form>
     </div>
 

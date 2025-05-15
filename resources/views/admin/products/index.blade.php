@@ -83,14 +83,4 @@
         </script>
     @endif
 
-    @if ($errors->any())
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops! Something went wrong.',
-                html: `{!! implode('<br>', $errors->all()) !!}`,
-            });
-        </script>
-    @endif
-
 @endsection

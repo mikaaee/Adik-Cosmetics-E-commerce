@@ -56,7 +56,16 @@
                     <img src="{{ $product['image_url'] }}" alt="Current Image" width="120">
                 </div>
             @endif
-
+            <!-- Promo Checkbox -->
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="is_promo" name="is_promo" value="1"
+                    {{ old('is_promo', $product['is_promo'] ?? false) ? 'checked' : '' }}
+                    style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="is_promo" style="margin: 0; font-weight: 500; color: #2c3e50;">
+                    Mark this product as a <strong>PROMOTION</strong> item
+                </label>
+            </div>
+            
             <!-- Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-submit">
