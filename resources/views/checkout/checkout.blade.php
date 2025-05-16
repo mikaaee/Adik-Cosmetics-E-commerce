@@ -7,7 +7,6 @@
 @endsection
 
 @section('content')
-
     <div class="container">
         <div class="form-section">
             <h2>Shipping Details</h2>

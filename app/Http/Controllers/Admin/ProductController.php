@@ -204,8 +204,8 @@ class ProductController extends Controller
         Cache::forget('all_products');
 
         return $response->successful()
-            ? redirect()->route('admin.products')->with('success', 'Product deleted successfully!')
-            : redirect()->route('admin.products')->with('error', 'Failed to delete product!');
+            ? redirect()->route('admin.products.index')->with('success', 'Product deleted successfully!')
+            : redirect()->route('admin.products.index')->with('error', 'Failed to delete product!');
     }
 
     private function fetchCategories()

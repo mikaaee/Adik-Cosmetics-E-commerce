@@ -8,108 +8,163 @@
 
 @section('content')
     <style>
-        .container {
+        .payment-container {
             max-width: 800px;
-            margin: 20px auto;
+            margin: 30px auto;
             background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        h2,
-        label {
+        .payment-title {
             color: #7c3d4f;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            font-weight: 600;
+            border-bottom: 2px solid #f3e9ec;
+            padding-bottom: 10px;
         }
 
-        label {
+        .form-label {
             display: block;
-            font-size: 0.9em;
-            margin-bottom: 6px;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+            color: #7c3d4f;
+            font-weight: 500;
         }
 
-        input,
-        select {
+        .form-control {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
+            padding: 12px 15px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
             margin-bottom: 20px;
+            font-size: 1em;
+            transition: border-color 0.3s;
         }
 
-        button {
+        .form-control:focus {
+            border-color: #9e5866;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(158, 88, 102, 0.1);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%237c3d4f' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+
+        .payment-btn {
             background-color: #9e5866;
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 20px;
+            padding: 14px 30px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.1em;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
         }
 
-        button:hover {
+        .payment-btn:hover {
             background-color: #874554;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .summary {
-            margin-top: 30px;
-            font-size: 1em;
+        .payment-summary {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #f3e9ec;
+        }
+
+        .summary-title {
             color: #7c3d4f;
-        }
-
-        .summary p {
-            margin: 5px 0;
-        }
-
-        .summary .total {
-            font-weight: bold;
             font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #5a5a5a;
+        }
+
+        .summary-total {
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #7c3d4f;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 20px;
+            .payment-container {
+                padding: 25px;
+                margin: 15px;
             }
+            
+            .payment-title {
+                font-size: 1.5em;
+            }
+        }
 
-            button {
-                padding: 10px;
-            }
+        /* Payment method icons */
+        .payment-method-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
         }
     </style>
 
-    <div class="container">
-        <h2>Payment via ToyyibPay</h2>
+    <div class="payment-container">
+        <h2 class="payment-title">Select Payment Method</h2>
 
-        <form method="POST" action="{{ route('checkout.toyyibpayRedirect') }}">
+        <form method="POST" action="{{ route('checkout.handlePayment') }}">
             @csrf
-            <button type="submit">Pay Now</button>
 
-            <!--<button id="fakePayBtn">Pay Now</button>-->
+            <div class="form-group">
+                <label for="payment_method" class="form-label">Payment Method</label>
+                <select name="payment_method" id="payment_method" class="form-control" required>
+                    <option value="" disabled selected>Select your payment method</option>
+                    <option value="toyyibpay">ToyyibPay</option>
+                    <option value="cod">Cash on Delivery (COD)</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="card">Credit / Debit Card</option>
+                </select>
+            </div>
+
+            <button type="submit" class="payment-btn">Proceed to Payment</button>
         </form>
 
-        <div class="summary">
-            <hr>
-            <p>Subtotal: <strong>RM{{ number_format($subtotal, 2) }}</strong></p>
-            <p>Shipping: <strong>RM{{ number_format($shipping_cost, 2) }}</strong></p>
-            <p class="total">Total: RM{{ number_format($total, 2) }}</strong></p>
+        <div class="payment-summary">
+            <h3 class="summary-title">Order Summary</h3>
+            
+            <div class="summary-item">
+                <span>Subtotal:</span>
+                <span>RM{{ number_format($subtotal, 2) }}</span>
+            </div>
+            
+            <div class="summary-item">
+                <span>Shipping:</span>
+                <span>RM{{ number_format($shipping_cost, 2) }}</span>
+            </div>
+            
+            <div class="summary-item summary-total">
+                <span>Total:</span>
+                <span>RM{{ number_format($total, 2) }}</span>
+            </div>
         </div>
     </div>
-    <!--<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.getElementById('fakePayBtn').addEventListener('click', function() {
-            Swal.fire({
-                title: 'Pembayaran Berjaya!',
-                text: 'Terima kasih atas pembelian anda.',
-                icon: 'success',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.href = "{ route('checkout.toyyibpayReturn') }}";
-            });
-        });
-    </script>-->
-
 @endsection

@@ -241,6 +241,46 @@ class UserController extends Controller
             return redirect()->route('products.all')->with('error', 'Product not found.');
         }
     }
+    public function showPromotions()
+    {
+        $response = Http::get('https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/products');
+        $docs = $response['documents'] ?? [];
+
+        $products = [];
+        foreach ($docs as $doc) {
+            $fields = $doc['fields'];
+
+            // Fallback: Papar semua produk kalau is_promo tak ada
+            $isPromo = isset($fields['is_promo']['booleanValue']) ? $fields['is_promo']['booleanValue'] : true;
+
+            if ($isPromo) {
+                $products[] = [
+                    'id' => basename($doc['name']),
+                    'name' => $fields['name']['stringValue'] ?? '',
+                    'category' => $fields['category']['stringValue'] ?? '',
+                    'price' => isset($fields['price']['doubleValue'])
+                        ? $fields['price']['doubleValue']
+                        : ($fields['price']['integerValue'] ?? 0),
+                    'image_url' => $fields['image_url']['stringValue'] ?? '',
+                ];
+            }
+        }
+
+        // Fetch categories
+        $catResponse = Http::get('https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/categories');
+        $catDocs = $catResponse['documents'] ?? [];
+
+        $categories = [];
+        foreach ($catDocs as $cat) {
+            $categories[] = [
+                'name' => $cat['fields']['category_name']['stringValue'] ?? '',
+            ];
+        }
+
+        return view('promotions', compact('products', 'categories'));
+    }
+
+
     public function orderHistory()
     {
         return view('order-history');
@@ -272,7 +312,7 @@ class UserController extends Controller
                         'price' => $fields['price']['doubleValue'] ?? ($fields['price']['integerValue'] ?? 0),
                         'image_url' => $fields['image_url']['stringValue'] ?? '',
                         'description' => $fields['description']['stringValue'] ?? '',
-                        'category' => $fields['category']['stringValue'] ?? 'Uncategorized', 
+                        'category' => $fields['category']['stringValue'] ?? 'Uncategorized',
                     ];
                 }
             }

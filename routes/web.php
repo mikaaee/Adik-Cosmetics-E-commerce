@@ -140,8 +140,8 @@ Route::get('/checkout/thankyou', [CheckoutController::class, 'thankyou'])->name(
 | Admin Routes Group
 |-------------------------------------------------------------------------- 
 */
-Route::get('/admin/api/new-orders', [OrderController::class, 'getNewOrderCount']);
-Route::get('/admin/generate-dummy-orders', [OrderController::class, 'generateDummyOrders']);
+//Route::get('/admin/api/new-orders', [OrderController::class, 'getNewOrderCount']);
+//Route::get('/admin/generate-dummy-orders', [OrderController::class, 'generateDummyOrders']);
 
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -173,8 +173,17 @@ Route::prefix('admin')->group(function () {
     Route::delete('/ads/{id}', [AdsController::class, 'destroy'])->name('admin.ads.destroy');
 });
 
-Route::post('/checkout/toyyibpay', [CheckoutController::class, 'toyyibpayRedirect'])->name('checkout.toyyibpayRedirect');
+Route::match(['get', 'post'], '/checkout/toyyibpay', [CheckoutController::class, 'toyyibpayRedirect'])->name('checkout.toyyibpayRedirect');
 Route::match(['GET', 'POST'], '/checkout/toyyibpay/return', [CheckoutController::class, 'toyyibpayCallback'])->name('checkout.toyyibpayReturn');
+Route::post('/checkout/handle-payment', [CheckoutController::class, 'handlePayment'])->name('checkout.handlePayment');
+Route::get('/checkout/payment', [CheckoutController::class, 'showPaymentPage'])->name('checkout.payment');
+Route::match(['get', 'post'], '/checkout/handle-payment', [CheckoutController::class, 'handlePayment'])->name('checkout.handlePayment');
+Route::get('/checkout/thankyou', [CheckoutController::class, 'thankyou'])->name('checkout.thankyou');
+
+Route::post('/checkout/card/process', function () {
+    $total = session('total', 0);
+    return view('checkout.card-dummy', ['total' => $total]);
+})->name('checkout.card.process');
 
 Route::get('/promotions', [UserController::class, 'promoPage'])->name('promo.page');
 

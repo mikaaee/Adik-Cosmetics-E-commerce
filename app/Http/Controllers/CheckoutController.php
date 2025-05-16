@@ -26,10 +26,12 @@ class CheckoutController extends Controller
         ]);
 
         $user_id = session('user_data')['uid'] ?? null;
+        //dd(session('user_data'));
         $userData = [];
 
         // ❗ Paksa refresh Firestore user profile setiap kali buka page checkout
         $response = Http::get("https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/users/{$user_id}");
+        //dd($response->json());
         $fields = $response['fields'] ?? [];
 
         $userData = [
@@ -220,9 +222,50 @@ class CheckoutController extends Controller
 
         return view('checkout.payment', compact('cart', 'subtotal', 'shipping_cost', 'total'));
     }
+    public function handlePayment(Request $request)
+    {
+        $method = $request->input('payment_method');
+        $total = session('total', 0);
+
+        switch ($method) {
+            case 'toyyibpay':
+                return redirect()->route('checkout.toyyibpayRedirect');
+
+            case 'card':
+                session(['payment_method' => $method]);
+                return view('checkout.card', ['total' => $total]); // Tukar ke page isi kad
+
+            case 'bank_transfer':
+                session(['payment_method' => $method]);
+                 session()->forget(['cart', 'subtotal', 'shipping_cost']);
+                return view('checkout.thankyou', ['total' => $total]);
+
+            case 'cod':
+                session(['payment_method' => $method]);
+                session()->forget(['cart', 'subtotal', 'shipping_cost']);
+                return view('checkout.cod_success');
+
+            default:
+                return redirect()->back()->with('error', 'Invalid payment method selected.');
+        }
+    }
+
+
+    public function showPaymentPage()
+    {
+        $subtotal = session('subtotal', 0);
+        $shipping_cost = session('shipping_cost', 0.20);
+        $total = $subtotal + $shipping_cost;
+
+        return view('checkout.payment', compact('subtotal', 'shipping_cost', 'total'));
+    }
+
+
 
     public function thankyou()
     {
-        return view('checkout.thankyou');
+        $total = session('total', 0);
+        return view('checkout.thankyou', compact('total'));
     }
+
 }

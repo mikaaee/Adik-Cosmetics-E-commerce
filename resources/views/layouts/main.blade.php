@@ -37,7 +37,7 @@
     <footer>
         <p>&copy; 2025 ADIK COSMETICS. All rights reserved.</p>
     </footer>
-    @yield('scripts')
+    @stack('scripts')
 </body>
 
 </html>

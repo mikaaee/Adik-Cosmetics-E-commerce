@@ -46,13 +46,14 @@
              z-index: 2;
          }
 
-
          .hero-text h1 {
-             color: #000;
-             font-size: 2.5rem;
-             font-weight: 700;
-             margin-top:0px;
-             text-shadow: 1px 1px 3px rgba(203, 203, 203, 0.3);
+             color: #c96c9c;
+             /* White for better contrast */
+             font-size: 3rem;
+             /* Larger on desktop */
+             text-shadow: 2px 2px 8px rgba(159, 112, 148, 0.5);
+             margin-bottom: 20px;
+             animation: fadeInUp 0.8s ease;
          }
 
          /* ---- Modern Button Design ---- */
