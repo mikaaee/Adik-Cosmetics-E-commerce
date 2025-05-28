@@ -56,8 +56,6 @@ Route::get('/debugads', function () {
     return view('debugads');
 });
 
-
-
 /*
 |-------------------------------------------------------------------------- 
 | Authentication Routes 
@@ -94,7 +92,7 @@ Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('user.
 Route::post('/profile/update', [UserController::class, 'updateProfile'])->name('user.profile.update');
 Route::get('/address', [UserController::class, 'address'])->name('user.address');
 Route::get('/order-history', [OrderController::class, 'userOrderHistory'])->name('order.history');
-
+Route::post('/order/received/{id}', [OrderController::class, 'markAsReceived'])->name('user.markReceived');
 
 // Route untuk paparkan produk mengikut kategori
 Route::get('/category/{categoryId}/products', [UserController::class, 'showProductsByCategory'])->name('category.products');
@@ -135,23 +133,19 @@ Route::post('/checkout/payment', [CheckoutController::class, 'processPayment'])-
 // Step 5: Papar halaman 'Thank You' lepas pembayaran berjaya
 Route::get('/checkout/thankyou', [CheckoutController::class, 'thankyou'])->name('checkout.thankyou');
 
-/*
-|-------------------------------------------------------------------------- 
-| Admin Routes Group
-|-------------------------------------------------------------------------- 
-*/
-//Route::get('/admin/api/new-orders', [OrderController::class, 'getNewOrderCount']);
-//Route::get('/admin/generate-dummy-orders', [OrderController::class, 'generateDummyOrders']);
-
-
 Route::prefix('admin')->name('admin.')->group(function () {
     // Resource route ni akan hasilkan nama: admin.categories.index, etc.
     Route::resource('/categories', CategoryController::class);
     Route::resource('/products', ProductController::class);
     Route::post('/store-product', [ProductController::class, 'store'])->name('store-product');
     Route::resource('/manage-orders', OrderController::class);
+    Route::put('/manage-orders/{id}', [OrderController::class, 'update'])->name('manage-orders.update');
     Route::get('/generate-report', [ReportController::class, 'generateReport'])->name('reports.index');
     Route::get('/dashboard', [OrderController::class, 'dashboard'])->name('dashboard');
+    Route::get('/orders/new/count', [OrderController::class, 'getNewOrderCount'])->name('orders.new.count');
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
+
+
 });
 
 Route::prefix('admin')->group(function () {
@@ -171,8 +165,9 @@ Route::prefix('admin')->group(function () {
     Route::get('/ads/create', [AdsController::class, 'create'])->name('admin.ads.create');
     Route::post('/ads/store', [AdsController::class, 'store'])->name('admin.ads.store');
     Route::delete('/ads/{id}', [AdsController::class, 'destroy'])->name('admin.ads.destroy');
-});
-
+    Route::get('/ads/{id}/edit', [AdsController::class, 'edit'])->name('admin.ads.edit');
+    Route::patch('/ads/{id}', [AdsController::class, 'update'])->name('admin.ads.update');
+    });
 Route::match(['get', 'post'], '/checkout/toyyibpay', [CheckoutController::class, 'toyyibpayRedirect'])->name('checkout.toyyibpayRedirect');
 Route::match(['GET', 'POST'], '/checkout/toyyibpay/return', [CheckoutController::class, 'toyyibpayCallback'])->name('checkout.toyyibpayReturn');
 Route::post('/checkout/handle-payment', [CheckoutController::class, 'handlePayment'])->name('checkout.handlePayment');

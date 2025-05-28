@@ -11,160 +11,11 @@ body {
     color: #333;
 }
 
-/* Header */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #c69c9c;
-    padding: 20px 50px;
-}
-
-header .logo {
-    display: flex;
-    align-items: center;
-}
-
-header .logo img {
-    height: 70px;
-    /* pastikan tinggi logo ngam */
-    width: auto;
-    margin-right: 10px;
-}
-
-header nav ul {
-    display: flex;
-    list-style: none;
-}
-
-header nav ul li {
-    margin-left: 30px;
-}
-
-header nav ul li a {
-    color: #fff;
-    text-decoration: none;
-    word-spacing: 20px;
-    font-size: 16px;
-    transition: color 0.3s ease, background-color 0.3s ease;
-}
-
-/* Semua link hover: tukar teks je */
-/*header nav ul li a:hover {
-    color: #000;
-    background-color: transparent;
-    /* 👈 force clear background 
-}*/
-
-header nav ul li a span {
-    margin-left: 8px;
-    /* Jarak antara icon dan text */
-}
-
-header nav ul li form {
-    display: flex;
-    align-items: center;
-}
-
-header nav ul li form input {
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
-    width: 150px;
-}
-
-header nav ul li form button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-}
-
-nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    align-items: center;
-}
-
-nav ul li {
-    position: relative;
-    margin-left: 20px;
-}
-
-nav ul li a {
-    text-decoration: none;
-    color: #333;
-    padding: 10px;
-}
-
-/* Dropdown Styles */
-nav ul li .dropdown-content {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: #fff;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    min-width: 180px;
-    border-radius: 10px;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-nav ul li:hover .dropdown-content {
-    display: block;
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Dropdown Items */
-nav ul li .dropdown-content li {
-    display: block;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-nav ul li .dropdown-content li a {
-    padding: 12px 20px;
-    color: #333;
-    font-size: 16px;
-    text-decoration: none;
-    display: block;
-    border-radius: 8px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-
-/* Hover effect on parent dropdown */
-/*nav ul li:hover>a {
-    color: #a17777;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 12px 20px;
-}*/
-.main-nav ul {
-    display: flex;
-    gap: 30px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.main-nav ul li a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 16px;
-    padding: 10px;
-}
-
-.right-group {
+/*.right-group {
     display: flex;
     align-items: center;
     gap: 20px;
-}
+} */
 
 /* Hero Section */
 .hero-ads {
@@ -179,7 +30,7 @@ nav ul li .dropdown-content li a {
     max-width: 100%;
     border-radius: 10px;
     height: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /*categories section*/
@@ -557,8 +408,8 @@ main.content {
 
 
 footer {
-    background-color: #c69c9c;
-    color: white;
+    background-color: #fff;
+    color: #c69c9c;
     text-align: center;
     padding: 20px;
 }

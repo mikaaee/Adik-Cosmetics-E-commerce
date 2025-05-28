@@ -1,117 +1,174 @@
- @if (!empty($ads) && count($ads))
-     <div class="hero-banner">
-         <img src="{{ $ads[0]['image_url'] }}" alt="{{ $ads[0]['title'] }}">
-         <div class="hero-text">
-             <h1>{{ $ads[0]['title'] }}</h1>
-             <a href="{{ route('promo.page') }}" class="btn-hero">Shop Promo Now! </a>
-         </div>
-     </div>
+@if (!empty($ads) && count($ads))
+    <div class="hero-slider-wrapper">
+        <div class="hero-slider" id="heroSlider">
+            @foreach ($ads as $index => $ad)
+                <div class="hero-slide">
+                    <img src="{{ $ad['image_url'] }}" alt="{{ $ad['title'] }}">
+                    <div class="hero-text">
+                        <h1>{{ $ad['title'] }}</h1>
+                        <a href="{{ route('promo.page') }}" class="btn-hero">Shop Promo Now!</a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        <div class="slider-dots" id="sliderDots">
+            @foreach ($ads as $index => $ad)
+                <span class="dot" onclick="goToSlide({{ $index }})"></span>
+            @endforeach
+        </div>
+    </div>
 
-     <style>
-         .hero-banner {
-             position: relative;
-             width: 100%;
-             height: 60vh;
-             overflow: hidden;
-         }
+    <style>
+        .hero-slider-wrapper {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
 
-         .hero-banner::before {
-             content: '';
-             position: absolute;
-             top: 0;
-             left: 0;
-             width: 100%;
-             height: 100%;
-             background: rgba(255, 255, 255, 0.4);
-             z-index: 1;
-         }
+        .hero-slider {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
 
-         .hero-banner img {
-             width: 100%;
-             height: 100%;
-             object-fit: cover;
-             display: block;
-             opacity: 0.3;
-             /* Optional */
-         }
+        .hero-slide {
+            flex: 0 0 100%;
+            height: 60vh;
+            position: relative;
+        }
 
-         .hero-text {
-             position: absolute;
-             bottom: 30px;
-             left: 50%;
-             transform: translateX(-50%);
-             text-align: center;
-             padding: 20px 40px;
-             border-radius: 12px;
-             z-index: 2;
-         }
+        .hero-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+        }
 
-         .hero-text h1 {
-             color: #c96c9c;
-             /* White for better contrast */
-             font-size: 3rem;
-             /* Larger on desktop */
-             text-shadow: 2px 2px 8px rgba(159, 112, 148, 0.5);
-             margin-bottom: 20px;
-             animation: fadeInUp 0.8s ease;
-         }
+        .hero-text {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            padding: 20px 40px;
+            z-index: 2;
+        }
 
-         /* ---- Modern Button Design ---- */
-         .btn-hero {
-             display: inline-block;
-             padding: 12px 30px;
-             background: #fff;
-             color: #c96c9c;
-             text-decoration: none;
-             border-radius: 50px;
-             /* Pill shape */
-             font-weight: bold;
-             font-size: 1.1rem;
-             transition: all 0.3s ease;
-             box-shadow: 0 4px 15px rgba(231, 146, 164, 0.4);
-             border: none;
-             cursor: pointer;
-         }
+        .hero-text h1 {
+            color: #c96c9c;
+            font-size: 3rem;
+            text-shadow: 2px 2px 8px rgba(159, 112, 148, 0.5);
+            margin-bottom: 20px;
+        }
 
-         .btn-hero:hover {
-             transform: translateY(-3px);
-             box-shadow: 0 6px 20px rgba(255, 107, 139, 0.6);
-             background: #fff;
-         }
+        .btn-hero {
+            padding: 12px 30px;
+            background: #fff;
+            color: #c96c9c;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(231, 146, 164, 0.4);
+        }
 
-         /* Arrow animation on hover */
-         .btn-hero::after {
-             margin-left: 8px;
-             transition: transform 0.3s ease;
-         }
+        .btn-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 139, 0.6);
+        }
 
-         .btn-hero:hover::after {
-             transform: translateX(5px);
-         }
+        .slider-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 3;
+        }
 
-         /* Responsive Adjustments */
-         @media (max-width: 768px) {
-             .hero-banner {
-                 height: 40vh;
-             }
+        .slider-dots .dot {
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border: 2px solid #c96c9c;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.3s;
+        }
 
-             .hero-text {
-                 padding: 15px 25px;
-                 width: 90%;
-             }
+        .slider-dots .dot.active {
+            background: #c96c9c;
+            opacity: 1;
+        }
 
-             .hero-text h1 {
-                 font-size: 1.5rem;
-             }
+        @media (max-width: 768px) {
+            .hero-slide {
+                height: 40vh;
+            }
 
-             .btn-hero {
-                 padding: 10px 20px;
-                 font-size: 1rem;
-             }
-         }
-     </style>
- @else
-     <div style="text-align: center; padding: 30px;">
-         <p style="color: red;">No ads to be displayed.</p>
-     </div>
- @endif
+            .hero-text h1 {
+                font-size: 1.5rem;
+            }
+
+            .btn-hero {
+                font-size: 1rem;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+
+    <script>
+        let currentSlide = 0;
+        const slider = document.getElementById('heroSlider');
+        const dots = document.querySelectorAll('.dot');
+        const totalSlides = {{ count($ads) }};
+
+        function updateSliderPosition() {
+            slider.style.transform = `translateX(-${100 * currentSlide}%)`;
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSliderPosition();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSliderPosition();
+        }
+
+        // Auto-slide
+        let autoSlide = setInterval(nextSlide, 4000);
+
+        // Pause on hover
+        slider.addEventListener('mouseenter', () => clearInterval(autoSlide));
+        slider.addEventListener('mouseleave', () => autoSlide = setInterval(nextSlide, 4000));
+
+        // Swipe support (mobile)
+        let touchStartX = 0;
+        slider.addEventListener('touchstart', e => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        slider.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].clientX;
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            } else if (touchEndX > touchStartX + 50) {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateSliderPosition();
+            }
+        });
+
+        // Init first dot
+        updateSliderPosition();
+    </script>
+@else
+    <div style="text-align: center; padding: 30px;">
+        <p style="color: red;">No ads to be displayed.</p>
+    </div>
+@endif

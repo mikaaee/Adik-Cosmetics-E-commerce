@@ -20,7 +20,7 @@
     <div class="container">
         <!-- LEFT SIDE -->
         <div class="left">
-            <img src="{{ asset('images/logoac.png') }}" alt="ADIK COSMETICS HOUSE">
+            <img src="{{ asset('images/logoacGREAT.png') }}" alt="ADIK COSMETICS HOUSE">
             <a href="{{ route('register.form') }}" style="text-decoration: none;">
                 <h3>REGISTER</h3>
             </a>
@@ -62,32 +62,42 @@
                         Remember your password? <a href="{{ route('login.form') }}">Login here</a>
                     </div>
                 </form>
-                
-                @if (session('success'))
-                    <script>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: '{{ session('success') }}',
-                            timer: 3000,
-                            showConfirmButton: false
-                        });
-                    </script>
-                @endif
-
-                @if (session('error'))
-                    <script>
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: '{{ session('error') }}',
-                        });
-                    </script>
-                @endif
-
             </div>
         </div>
     </div>
+    <style>
+        /* Left section with logo + links */
+        .left img {
+            max-width: 70%;
+            height: auto;
+            display: block;
+            margin: 0 auto 30px;
+        }
+    </style>
+    <script>
+        @if (session('success'))
+            <
+            script >
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+    </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+            });
+        </script>
+    @endif
+    </script>
 </body>
 
 </html>

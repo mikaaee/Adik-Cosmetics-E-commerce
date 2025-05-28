@@ -5,22 +5,73 @@
     <meta charset="UTF-8">
     <title>Admin Panel - Adik Cosmetics</title>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    <script src="{{ asset('js/admin.js') }}" defer></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700&display=swap" rel="stylesheet">
-
 </head>
+
 <style>
     #sidebar {
         transition: all 0.3s ease;
-        /* Smooth transition for all properties */
         width: 250px;
-        /* Default width when the sidebar is expanded */
-        /* Add any other styling for the sidebar */
     }
 
     #sidebar.minimized {
         width: 80px;
-        /* Width when the sidebar is minimized */
+    }
+
+    /* Sidebar Header */
+    .sidebar-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70px;
+        padding-top: 10px;
+        padding-bottom: 0;
+    }
+
+    .sidebar-header .logo {
+        width: 110px;
+        height: auto;
+        transition: all 0.3s ease;
+    }
+
+    #sidebar.minimized .sidebar-header {
+        height: 60px;
+        padding-top: 8px;
+    }
+
+    #sidebar.minimized .sidebar-header .logo {
+        width: 50px;
+    }
+
+    /* Sidebar Menu Spacing */
+    .sidebar ul {
+        padding-top: 10px;
+    }
+
+    .sidebar ul li {
+        margin-top: 5px;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        margin-right: 15px;
+    }
+
+    .badge {
+        background-color: red;
+        color: black;
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 50%;
+        position: absolute;
+        top: -5px;
+        right: -10px;
     }
 </style>
 
@@ -31,7 +82,7 @@
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">Adik Cosmetics AdminHub</div>
+                <img src="{{ asset('images/logoacGREAT.png') }}" alt="ADIK COSMETICS HOUSE" class="logo">
             </div>
             <ul>
                 <li onclick="location.href='{{ route('admin.dashboard') }}'">
@@ -60,7 +111,7 @@
                 </li>
 
                 <li onclick="location.href='{{ route('admin.ads.index') }}'">
-                    <i class="fas fa-bullhorn"></i> 
+                    <i class="fas fa-bullhorn"></i>
                     <span>Manage Ads</span>
                 </li>
 
@@ -69,7 +120,6 @@
                     <span>Logout</span>
                 </li>
             </ul>
-
         </div>
 
         <!-- Main Section -->
@@ -78,28 +128,47 @@
             <!-- Header -->
             <div class="header">
                 <div class="sidebar-toggle" onclick="toggleSidebar()">
-                    &#9776; <!-- Hamburger icon -->
+                    &#9776;
                 </div>
 
                 <div class="user-actions">
-                    <!-- Notification Icon -->
-                    <button class="icon-btn" onclick="showNotifications()">
+                    <!-- Bell Button 
+                    <button class="icon-btn" onclick="toggleNotifBox()">
                         <i class="fas fa-bell"></i>
                         <span class="badge" id="order-badge">0</span>
-                    </button>
+                    </button> -->
 
+                     <!--Dropdown Box 
+                    <div id="notif-box"
+                        style="
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 80px;
+    width: 280px;
+    background: #1c1c1c;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 10px;
+    z-index: 999;
+    max-height: 300px; /* ✅ Tambah ini */
+    overflow-y: auto;  /* ✅ Supaya scroll boleh muncul */
+    color: white;      /* ✅ Teks putih jika latar hitam */
+    ">
+                        <ul id="notif-list" style="list-style: none; padding-left: 0; margin: 0;">
+                            <li>No new orders.</li>
+                        </ul>
+                    </div>-->
 
-                    <!-- User Profile -->
                     <div class="user-profile" onclick="toggleProfileMenu()">
                         <i class="fas fa-user-circle" style="font-size: 24px; color: #fff;"></i>
                         <span>{{ session('user_data.name') ?? 'Admin' }}</span>
                         <i class="fas fa-caret-down"></i>
                     </div>
-                    <!-- Dropdown Menu -->
                     <div id="profileDropdown" class="profile-dropdown" style="display: none;">
                         <a href="{{ route('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
-
                 </div>
             </div>
 
@@ -107,60 +176,9 @@
                 @yield('content')
             </div>
         </div>
-        <!-- Include any global JS here -->
 
-        @yield('scripts') <!-- ✅ Tempat letak script custom per page -->
-
+        @yield('scripts')
     </div>
-
-    <!-- Script for Sidebar -->
-    <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('minimized');
-        }
-
-        function showNotifications() {
-            Swal.fire({
-                title: 'Order Notification',
-                text: 'Ada pesanan baru masuk!',
-                icon: 'info',
-                confirmButtonText: 'View Orders',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "{{ route('admin.manage-orders.index') }}";
-                }
-            });
-        }
-
-        function fetchNewOrderCount() {
-            fetch('/admin/api/new-orders')
-                .then(response => response.json())
-                .then(data => {
-                    const badge = document.getElementById('order-badge');
-                    badge.innerText = data.count > 0 ? data.count : '';
-                });
-        }
-
-        setInterval(fetchNewOrderCount, 10000); // setiap 10 saat
-        window.onload = fetchNewOrderCount;
-
-
-
-        function toggleProfileMenu() {
-            const dropdown = document.getElementById('profileDropdown');
-            dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
-        }
-
-        // Optional: Hide dropdown kalau klik luar dari profile
-        document.addEventListener('click', function(event) {
-            const profile = document.querySelector('.user-profile');
-            const dropdown = document.getElementById('profileDropdown');
-            if (!profile.contains(event.target)) {
-                dropdown.style.display = 'none';
-            }
-        });
-    </script>
-
 </body>
 
 </html>

@@ -9,20 +9,17 @@ class CartController extends Controller
     /* ---------- tambah item ---------- */
     public function addToCart(Request $request, $productId)
     {
-        // pastikan user login
+        // ensure user login
         $user = session('user_data');
         if (!$user || !isset($user['uid'])) {
             return redirect()->route('login')->with('error', 'Please login first.');
         }
-
-        // ambil / wujudkan cart
         $cart = session('cart', []);
-
-        // jika item dah ada, tambah kuantiti
+        // add quantity if item dah ada
         if (isset($cart[$productId])) {
             $cart[$productId]['quantity']++;
         } else {
-            // item baru
+            //new ites
             $cart[$productId] = [
                 'name'      => $request->name,
                 'price'     => $request->price,
@@ -30,12 +27,11 @@ class CartController extends Controller
                 'quantity'  => 1,
             ];
         }
-
         session(['cart' => $cart]);
         return back()->with('success', 'Product added to cart!');
     }
 
-    /* ---------- papar cart ---------- */
+    /* ---------- display cart ---------- */
     public function viewCart()
     {
         $cart = session('cart', []);
@@ -43,14 +39,13 @@ class CartController extends Controller
         foreach ($cart as $item) {
             $subtotal += $item['price'] * $item['quantity'];
         }
-
         return view('cart.index', [
             'cart'     => $cart,
             'subtotal' => $subtotal,
         ]);
     }
 
-    /* ---------- kemas kini kuantiti ---------- */
+    /* ---------- Update Quantity ---------- */
     public function update(Request $request, $productId)
     {
         $cart = session('cart', []);
@@ -63,7 +58,7 @@ class CartController extends Controller
         return redirect()->route('cart.view');
     }
 
-    /* ---------- buang item ---------- */
+    /* ---------- Remove Items ---------- */
     public function remove($productId)
     {
         $cart = session('cart', []);

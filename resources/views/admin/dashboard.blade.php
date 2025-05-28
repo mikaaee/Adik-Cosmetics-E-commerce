@@ -19,12 +19,12 @@
                 <div class="card-content">
                     <div class="metric-header">
                         <h3>Total Sales</h3>
-                        <div class="metric-trend up">
-                            <i class="trend-icon"></i>
-                        </div>
+                        <!--<div class="metric-trend up">
+                                <i class="trend-icon"></i>
+                            </div>-->
                     </div>
                     <p class="metric-value">RM{{ number_format($totalSales, 2) }}</p>
-                    <p class="metric-description">All time revenue</p>
+                    <!--<p class="metric-description">All time revenue</p>-->
                 </div>
                 <div class="card-decoration"></div>
             </div>
@@ -33,9 +33,9 @@
                 <div class="card-content">
                     <div class="metric-header">
                         <h3>Total Customers</h3>
-                        <div class="metric-trend up">
-                            <i class="trend-icon"></i>
-                        </div>
+                        <!--<div class="metric-trend up">
+                                <i class="trend-icon"></i>
+                            </div>-->
                     </div>
                     <p class="metric-value">{{ $totalCustomers }}</p>
                     <p class="metric-description">Registered users</p>
@@ -47,9 +47,9 @@
                 <div class="card-content">
                     <div class="metric-header">
                         <h3>Total Orders</h3>
-                        <div class="metric-trend neutral">
-                            <i class="trend-icon"></i>
-                        </div>
+                        <!--<div class="metric-trend neutral">
+                                <i class="trend-icon"></i>
+                            </div>-->
                     </div>
                     <p class="metric-value">{{ $totalOrders }}</p>
                     <p class="metric-description">All time orders</p>
@@ -125,14 +125,56 @@
         .date-filter {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            font-size: 0.9rem;
-            color: var(--dark);
+            gap: 15px;
+            background: #fff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            max-width: 100%;
+            flex-wrap: wrap;
         }
+
+        .date-filter input[type="text"] {
+            padding: 10px 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #333;
+            width: 220px;
+            background-color: #fdfdfd;
+            transition: border-color 0.2s ease;
+        }
+
+        .date-filter input[type="text"]:focus {
+            outline: none;
+            border-color: #000;
+        }
+
+        .apply-btn {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .apply-btn:hover {
+            background-color: #222;
+            color: #f1f1f1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .apply-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
 
         .filter-icon {
             display: inline-block;

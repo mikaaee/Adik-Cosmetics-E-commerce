@@ -126,6 +126,4 @@
                 }
             }
         </style>
-        <script src="https://kit.fontawesome.com/your_kit_id.js" crossorigin="anonymous"></script>
-
     @endsection

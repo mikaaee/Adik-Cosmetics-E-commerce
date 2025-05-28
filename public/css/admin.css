@@ -610,11 +610,24 @@ a {
 .delete-btn:hover {
     background-color: #c82333;
 }
-
 /* Optional: Remove padding on form button */
 .delete-btn {
     padding: 0;
     /* Remove default button padding */
+}
+.btn-sm-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-sm-danger:hover {
+    background-color: #c82333;
 }
 
 /* edit category, reuse yang add-product container(below css for button) */

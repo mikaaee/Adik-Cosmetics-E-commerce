@@ -113,7 +113,7 @@
                 padding: 25px;
                 margin: 15px;
             }
-            
+
             .payment-title {
                 font-size: 1.5em;
             }
@@ -125,6 +125,56 @@
             height: 24px;
             margin-right: 10px;
             vertical-align: middle;
+        }
+
+        .bank-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .bank-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #ccc;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 120px;
+            transition: 0.3s;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .bank-option input {
+            display: none;
+        }
+
+        .bank-option img {
+            max-width: 60px;
+            max-height: 40px;
+            margin-bottom: 8px;
+        }
+
+        .bank-option span {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .bank-option:hover {
+            border-color: #7c3d4f;
+        }
+
+        .bank-option input:checked+img,
+        .bank-option input:checked+span {
+            filter: brightness(0.9);
+        }
+
+        .bank-option input:checked+span {
+            color: #7c3d4f;
         }
     </style>
 
@@ -144,27 +194,66 @@
                     <option value="card">Credit / Debit Card</option>
                 </select>
             </div>
-
+            <div class="form-group" id="bank-select-group" style="display: none;">
+                <label for="bank" class="form-label">Choose Your Bank</label>
+                <select name="bank" id="bank" class="form-control" required>
+                    <option value="" selected disabled>-- Select Bank --</option>
+                    <option value="Maybank">Maybank</option>
+                    <option value="CIMB Bank">CIMB Bank</option>
+                    <option value="RHB Bank">RHB Bank</option>
+                    <option value="Public Bank">Public Bank</option>
+                    <option value="Bank Islam">Bank Islam</option>
+                    <option value="Bank Rakyat">Bank Rakyat</option>
+                    <option value="Hong Leong Bank">Hong Leong Bank</option>
+                    <option value="Ambank">Ambank</option>
+                    <option value="UOB Bank">UOB Bank</option>
+                    <option value="OCBC Bank">OCBC Bank</option>
+                    <option value="HSBC Bank">HSBC Bank</option>
+                    <option value="Standard Chartered">Standard Chartered</option>
+                    <option value="Affin Bank">Affin Bank</option>
+                    <option value="Alliance Bank">Alliance Bank</option>
+                    <option value="BSN">BSN</option>
+                </select>
+            </div>
             <button type="submit" class="payment-btn">Proceed to Payment</button>
         </form>
 
+
         <div class="payment-summary">
             <h3 class="summary-title">Order Summary</h3>
-            
+
             <div class="summary-item">
                 <span>Subtotal:</span>
                 <span>RM{{ number_format($subtotal, 2) }}</span>
             </div>
-            
+
             <div class="summary-item">
                 <span>Shipping:</span>
                 <span>RM{{ number_format($shipping_cost, 2) }}</span>
             </div>
-            
+
             <div class="summary-item summary-total">
                 <span>Total:</span>
                 <span>RM{{ number_format($total, 2) }}</span>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentMethod = document.getElementById('payment_method');
+            const bankSelectGroup = document.getElementById('bank-select-group');
+            const bankSelect = document.getElementById('bank');
+
+            paymentMethod.addEventListener('change', function() {
+                if (this.value === 'bank_transfer') {
+                    bankSelectGroup.style.display = 'block';
+                } else {
+                    bankSelectGroup.style.display = 'none';
+                    bankSelect.selectedIndex = 0; // Reset bank dropdown
+                }
+            });
+        });
+    </script>
+
+
 @endsection

@@ -18,7 +18,7 @@
     <div class="container">
         <!-- LEFT SIDE -->
         <div class="left">
-            <img src="{{ asset('images/logoac.png') }}" alt="ADIK COSMETICS HOUSE">
+            <img src="{{ asset('images/logoacGREAT.png') }}" alt="ADIK COSMETICS HOUSE">
             <a href="{{ route('register.form') }}" style="text-decoration: none;">
                 <h3>REGISTER</h3>
             </a>
@@ -33,7 +33,7 @@
                 <p>LOGIN</p>
 
                 {{-- Error Message --}}
-                @if(session('error'))
+                @if (session('error'))
                     <div class="error-message">{{ session('error') }}</div>
                 @endif
 
@@ -63,6 +63,15 @@
         </div>
 
     </div>
+    <style>
+        /* Left section with logo + links */
+        .left img {
+            max-width: 70%;
+            height: auto;
+            display: block;
+            margin: 0 auto 30px;
+        }
+    </style>
 
 </body>
 

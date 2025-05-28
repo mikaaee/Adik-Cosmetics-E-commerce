@@ -155,27 +155,18 @@ class UserController extends Controller
         $categories = $this->getCategoriesFromFirestore(); // Get the categories to get the category name
         $category = collect($categories)->firstWhere('id', $categoryId);
         $categoryName = $category['name']; // Get the name of the category (e.g., "Makeup")
-
         $collection = 'products';
-
         $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collection}?key={$this->apiKey}";
-
         $response = Http::get($url);
-
         $products = [];
-
         if ($response->successful()) {
             $documents = $response->json()['documents'] ?? [];
-
             foreach ($documents as $doc) {
                 $fields = $doc['fields'] ?? [];
-
                 // Get the category field from the product document
                 $productCategory = $fields['category']['stringValue'] ?? null;
-
                 // Debugging - Check category and productCategory
                 logger()->info("Checking product: ", ['category' => $categoryName, 'productCategory' => $productCategory]);
-
                 // Match category name with the category passed
                 if ($productCategory === $categoryName) {
                     $products[] = [
@@ -190,22 +181,16 @@ class UserController extends Controller
         } else {
             logger()->error('Failed to fetch products by category', ['response' => $response->body()]);
         }
-
         return $products;
     }
     public function getProductFromFirestoreById($id)
     {
         $collection = 'products';
-
         $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collection}/{$id}?key={$this->apiKey}";
-
         $response = Http::get($url);
-
         $product = null;
-
         if ($response->successful()) {
             $doc = $response->json()['fields'] ?? [];
-
             $product = [
                 'id' => $id,
                 'name' => $doc['name']['stringValue'] ?? 'No Name',
@@ -217,25 +202,21 @@ class UserController extends Controller
         } else {
             logger()->error('Failed to fetch product from Firestore', ['response' => $response->body()]);
         }
-
         return $product;
     }
 
     public function allProducts()
     {
-        $products = $this->getProductsFromFirestore();   // ambil semua produk
-        $categories = $this->getCategoriesFromFirestore(); // untuk filter sidebar
-
+        $products = $this->getProductsFromFirestore();   // fetch all products
+        $categories = $this->getCategoriesFromFirestore(); //filter sidebar
         return view('products.all', compact('products', 'categories'));
     }
     public function show($id)
     {
-        // Ambil produk berdasarkan ID dari Firestore
+        // fetch product based on firestore ID
         $product = $this->getProductFromFirestoreById($id);
-
-        // Pastikan produk ada
         if ($product) {
-            // Return view dengan data produk
+            // Return view with products data
             return view('products.details', compact('product'));
         } else {
             return redirect()->route('products.all')->with('error', 'Product not found.');
@@ -245,14 +226,10 @@ class UserController extends Controller
     {
         $response = Http::get('https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/products');
         $docs = $response['documents'] ?? [];
-
         $products = [];
         foreach ($docs as $doc) {
             $fields = $doc['fields'];
-
-            // Fallback: Papar semua produk kalau is_promo tak ada
             $isPromo = isset($fields['is_promo']['booleanValue']) ? $fields['is_promo']['booleanValue'] : true;
-
             if ($isPromo) {
                 $products[] = [
                     'id' => basename($doc['name']),
@@ -265,18 +242,15 @@ class UserController extends Controller
                 ];
             }
         }
-
         // Fetch categories
         $catResponse = Http::get('https://firestore.googleapis.com/v1/projects/adikcosmetics-1518b/databases/(default)/documents/categories');
         $catDocs = $catResponse['documents'] ?? [];
-
         $categories = [];
         foreach ($catDocs as $cat) {
             $categories[] = [
                 'name' => $cat['fields']['category_name']['stringValue'] ?? '',
             ];
         }
-
         return view('promotions', compact('products', 'categories'));
     }
 

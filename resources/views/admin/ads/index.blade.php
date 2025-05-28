@@ -27,22 +27,67 @@
                                 <img src="{{ $ad['image_url'] }}" alt="Ad Image" style="max-height: 60px;">
                             </td>
                             <td>
+                                <a href="{{ route('admin.ads.edit', $ad['id']) }}" class="btn-action btn-edit">
+                                    <i class="fas fa-edit"></i> 
+                                </a>
+
                                 <form action="{{ route('admin.ads.destroy', $ad['id']) }}" method="POST"
-                                    onsubmit="return confirm('Delete this ad?')">
+                                    style="display: inline-block;" onsubmit="return confirm('Delete this ad?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Delete</button>
+                                    <button type="submit" class="btn-action btn-delete">
+                                        <i class="fas fa-trash"></i> 
+                                    </button>
                                 </form>
                             </td>
+
                         </tr>
                     @endforeach
+
                 </tbody>
             </table>
         @else
             <p>No ads found.</p>
         @endif
     </div>
+    <style>
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
 
+        .btn-edit {
+            background-color: #f5d2e0;
+            color: #b45784;
+        }
+
+        .btn-edit:hover {
+            background-color: #e3b7cd;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(180, 87, 132, 0.2);
+        }
+
+        .btn-delete {
+            background-color: #ffe2e2;
+            color: #cc4b4b;
+        }
+
+        .btn-delete:hover {
+            background-color: #f8bfbf;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(204, 75, 75, 0.2);
+        }
+    </style>
     <!-- SweetAlert2 Script -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

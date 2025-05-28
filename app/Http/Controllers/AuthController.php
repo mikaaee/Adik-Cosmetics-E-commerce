@@ -23,7 +23,6 @@ class AuthController extends Controller
     {
         return view('auth.register');
     }
-
     // ======== REGISTER FUNCTION ========
     public function register(Request $request)
     {
@@ -38,26 +37,20 @@ class AuthController extends Controller
             'postcode' => 'required',
             'country' => 'required',
         ]);
-
         try {
-            // 1. Create user kat Firebase Auth
+            // 1. Create user at Firebase Auth
             $userProperties = [
                 'email' => $request->email,
                 'password' => $request->password,
             ];
-
             $createdUser = $this->auth->createUser($userProperties);
-
             // 2. Auto-assign role
             $role = ($request->email === 'admin@adikcosmetics.com') ? 'admin' : 'user';
-
-            // 3. Simpan user ke Firestore
+            // 3. Save user to Firestore
             $client = new Client();
             $projectId = 'adikcosmetics-1518b';
             $uid = $createdUser->uid;
-
             $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users?documentId=$uid";
-
             $response = $client->post($url, [
                 'json' => [
                     'fields' => [
@@ -76,13 +69,9 @@ class AuthController extends Controller
                     'Authorization' => 'Bearer ' . $this->getAccessToken(),
                 ]
             ]);
-
             if ($response->getStatusCode() !== 200) {
                 return back()->with('error', 'Failed to save user to Firestore!');
             }
-
-            // 4. Save session
-
             // 4. Save session to Firestore
             $this->storeSessionInFirestore([
                 'uid' => $uid,
@@ -95,15 +84,10 @@ class AuthController extends Controller
                 'city' => $request->city,
                 'postcode' => $request->postcode,
                 'country' => $request->country,
-
             ]);
-
-
             // 5. Redirect ikut role
             session()->flash('success', 'Register Successful! Please login.');
             return $this->redirectUser($role);
-           
-
         } catch (\Throwable $e) {
             return back()->with('error', 'Registration failed: ' . $e->getMessage());
         }
@@ -122,37 +106,28 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
-
         try {
             // 1. Login Firebase
             $signInResult = $this->auth->signInWithEmailAndPassword($request->email, $request->password);
-
             // 2. Get user details by email
             $user = $this->auth->getUserByEmail($request->email);
             $uid = $user->uid;
-
             // 3. Retrieve data from Firestore
             $client = new Client();
             $projectId = 'adikcosmetics-1518b';
             $url = "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$uid";
-
             $response = $client->get($url, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->getAccessToken(),
                 ]
             ]);
-
             if ($response->getStatusCode() === 404) {
                 return back()->with('error', 'User not found in Firestore.');
             }
-
             $userData = json_decode($response->getBody(), true);
             $fields = $userData['fields'] ?? [];
-
             $role = $fields['role']['stringValue'] ?? 'user';
-
-            // 4. Simpan session
-            // 4. Simpan session ke Firestore
+            // 4. Save session ke Firestore
             $this->storeSessionInFirestore([
                 'uid' => $uid,
                 'first_name' => $fields['first_name']['stringValue'] ?? '',
@@ -165,11 +140,8 @@ class AuthController extends Controller
                 'postcode' => $fields['postcode']['stringValue'] ?? '',
                 'country' => $fields['country']['stringValue'] ?? '', // Tambah dalam session data
             ]);
-
-
             // 5. Redirect ikut role
             return $this->redirectUser($role);
-
         } catch (\Throwable $e) {
             return back()->with('error', 'Invalid email or password: ' . $e->getMessage());
         }
@@ -180,19 +152,15 @@ class AuthController extends Controller
     {
         return view('auth.forgot-password');
     }
-
     // ======== SEND RESET LINK ========
     public function sendResetLink(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
         ]);
-
         $email = $request->input('email');
-
         try {
             $this->auth->sendPasswordResetLink($email); // ✅ GUNA METHOD YANG BETUL
-
             return back()->with('success', 'Reset email has been sent. Please check your inbox.');
         } catch (\Exception $e) {
             \Log::error('Reset link error: ' . $e->getMessage());

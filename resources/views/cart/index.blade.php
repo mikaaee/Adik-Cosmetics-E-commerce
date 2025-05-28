@@ -31,9 +31,24 @@
                             <td class="price-cell">RM{{ number_format($item['price'], 2) }}</td>
                             <td class="quantity-cell">
                                 <div class="quantity-control">
-                                    <button class="qty-btn minus">−</button>
+                                    <form method="POST" action="{{ route('cart.update', ['id' => $id]) }}"
+                                        style="display: inline-block;">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="quantity" value="{{ $item['quantity'] - 1 }}">
+                                        <button type="submit" class="qty-btn"
+                                            {{ $item['quantity'] == 1 ? 'disabled' : '' }}>−</button>
+                                    </form>
+
                                     <span class="qty-display">{{ $item['quantity'] }}</span>
-                                    <button class="qty-btn plus">+</button>
+
+                                    <form method="POST" action="{{ route('cart.update', ['id' => $id]) }}"
+                                        style="display: inline-block;">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="quantity" value="{{ $item['quantity'] + 1 }}">
+                                        <button type="submit" class="qty-btn">+</button>
+                                    </form>
                                 </div>
                             </td>
                             <td class="total-cell">RM{{ number_format($item['price'] * $item['quantity'], 2) }}</td>

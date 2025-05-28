@@ -138,9 +138,9 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ public_path('images/logoac1.png') }}" class="company-logo">
+        <img src="{{ public_path('images/logoacGREAT.png') }}" class="company-logo">
         <div class="report-title">Sales Performance Report</div>
-        <div class="report-subtitle">{{ config('app.name') }}</div>
+        <!--<div class="report-subtitle">{ config('app.name') }}</div>-->
         <div class="report-meta">
             Generated on: {{ now()->format('F j, Y \a\t H:i') }}<br>
             Report Period: {{ $start ?? 'N/A' }} to {{ $end ?? 'Present' }}
