@@ -215,7 +215,7 @@
                     <option value="BSN">BSN</option>
                 </select>
             </div>
-            <button type="submit" class="payment-btn">Proceed to Payment</button>
+            <button type="submit" class="payment-btn">Place Order</button>
         </form>
 
 

@@ -1,8 +1,11 @@
+ <meta name="csrf-token" content="{{ csrf_token() }}">
+ <meta name="chatbox-route" content="{{ route('chatbox.ask') }}">
+
  {{-- Modern Chatbox UI --}}
  <div class="chatbot-container" id="chatbot">
      <div class="chatbot-header" onclick="toggleChat()">
          <div class="chatbot-avatar">
-            <span style="font-size: 24px; position: relative; z-index: 1;">🤖</span>
+             <span style="font-size: 24px; position: relative; z-index: 1;">🤖</span>
          </div>
          <div class="chatbot-title">
              <h4>AdikBot</h4>
